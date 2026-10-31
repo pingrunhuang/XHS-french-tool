@@ -1,7 +1,10 @@
 (function () {
   "use strict";
 
+  var APP_VERSION = "1.0.2";
   var STORAGE_MIN_CLIENT_VERSION = 9460;
+  var WINDOW_INFO_MIN_CLIENT_VERSION = 9490;
+  var BRIDGE_TIMEOUT_MS = 1500;
   var STORAGE_KEY = "french_daily5_progress_v1";
   var LIKES_KEY = "french_daily5_likes_v1";
   var FAVS_KEY = "french_daily5_favs_v1";
@@ -26,8 +29,64 @@
     activePassageId: null,
     readMode: "all",
     readRate: "normal",
-    speakingSentence: -1
+    speakingSentence: -1,
+    interacted: false
   };
+
+  var toastTimer = null;
+  var speakWatchdog = null;
+  var buildVersionPromise = null;
+
+  // Resolve with `fallback` if `p` does not settle within `ms` (or rejects /
+  // is not a thenable). Container bridge calls must never block the UI.
+  function withTimeout(p, ms, fallback) {
+    return new Promise(function (resolve) {
+      var done = false;
+      var timer = setTimeout(function () {
+        if (done) return;
+        done = true;
+        resolve(fallback);
+      }, ms);
+      function finish(v) {
+        if (done) return;
+        done = true;
+        clearTimeout(timer);
+        resolve(v);
+      }
+      if (!p || typeof p.then !== "function") {
+        finish(fallback);
+        return;
+      }
+      p.then(finish, function () {
+        finish(fallback);
+      });
+    });
+  }
+
+  function showToast(msg, ms) {
+    var el = document.getElementById("toast");
+    if (!el) return;
+    el.textContent = msg;
+    el.className = "toast is-show";
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {
+      el.className = "toast";
+    }, ms || 2200);
+  }
+
+  // Wrap every UI handler: one runtime error must never leave a button dead
+  // without feedback.
+  function safe(fn) {
+    return function (e) {
+      state.interacted = true;
+      try {
+        return fn.call(this, e);
+      } catch (err) {
+        if (window.console && console.error) console.error(err);
+        showToast("出了点小问题，请再点一次");
+      }
+    };
+  }
 
   function $(id) {
     return document.getElementById(id);
@@ -128,18 +187,23 @@
     if (syncBuildVersion) {
       return Promise.resolve(syncBuildVersion);
     }
+    if (buildVersionPromise) return buildVersionPromise;
     var miniTool = xhs && xhs.miniTool;
     if (!miniTool || typeof miniTool.getLaunchOptions !== "function") {
       return Promise.resolve(0);
     }
-    return miniTool
-      .getLaunchOptions()
-      .then(function (launchOptions) {
+    var pending;
+    try {
+      pending = miniTool.getLaunchOptions();
+    } catch (error) {
+      return Promise.resolve(0);
+    }
+    buildVersionPromise = withTimeout(pending, BRIDGE_TIMEOUT_MS, null).then(
+      function (launchOptions) {
         return readBuildVersion(launchOptions);
-      })
-      .catch(function () {
-        return 0;
-      });
+      }
+    );
+    return buildVersionPromise;
   }
 
   function setLocalData(key, data) {
@@ -158,14 +222,21 @@
         miniTool &&
         typeof miniTool.setStorage === "function"
       ) {
-        return miniTool
-          .setStorage({ key: key, data: serializedData })
-          .then(function () {
-            return true;
-          })
-          .catch(function () {
-            return false;
-          });
+        var pendingSet;
+        try {
+          pendingSet = miniTool.setStorage({ key: key, data: serializedData });
+        } catch (error) {
+          return false;
+        }
+        return withTimeout(
+          pendingSet && typeof pendingSet.then === "function"
+            ? pendingSet.then(function () {
+                return true;
+              })
+            : null,
+          BRIDGE_TIMEOUT_MS,
+          false
+        );
       }
       try {
         localStorage.setItem(key, serializedData);
@@ -184,19 +255,20 @@
         miniTool &&
         typeof miniTool.getStorage === "function"
       ) {
-        return miniTool
-          .getStorage({ key: key })
-          .then(function (res) {
-            if (!res || res.data == null || res.data === "") return null;
-            try {
-              return JSON.parse(res.data);
-            } catch (e) {
-              return null;
-            }
-          })
-          .catch(function () {
+        var pendingGet;
+        try {
+          pendingGet = miniTool.getStorage({ key: key });
+        } catch (error) {
+          return null;
+        }
+        return withTimeout(pendingGet, BRIDGE_TIMEOUT_MS, null).then(function (res) {
+          if (!res || res.data == null || res.data === "") return null;
+          try {
+            return JSON.parse(res.data);
+          } catch (e) {
             return null;
-          });
+          }
+        });
       }
       try {
         var raw = localStorage.getItem(key);
@@ -225,6 +297,18 @@
       }
     }
     return out;
+  }
+
+  function mergeBucket(target, loaded) {
+    var kinds = ["words", "passages"];
+    var i;
+    var k;
+    for (i = 0; i < kinds.length; i++) {
+      var src = loaded[kinds[i]] || {};
+      for (k in src) {
+        if (Object.prototype.hasOwnProperty.call(src, k)) target[kinds[i]][k] = true;
+      }
+    }
   }
 
   function isLiked(kind, id) {
@@ -284,16 +368,56 @@
     );
   }
 
+  var TTS_OFF_NOTE =
+    "当前环境不支持系统朗读（安卓小红书内常见），可对照音标跟读。";
+
+  function hasTtsApi() {
+    return !!(
+      window.speechSynthesis &&
+      typeof window.speechSynthesis.speak === "function" &&
+      typeof window.SpeechSynthesisUtterance === "function"
+    );
+  }
+
+  // Speech is a progressive enhancement: Android System WebView does not
+  // expose the Web Speech API, so every speak control is hidden there instead
+  // of rendering buttons that do nothing.
   function detectTts() {
-    if (!window.speechSynthesis || typeof window.SpeechSynthesisUtterance !== "function") {
+    if (!hasTtsApi()) {
       state.ttsReady = false;
-      state.ttsNote =
-        "当前环境不支持系统朗读。请看音标自学，或换一台带法语 TTS 的真机。";
+      state.ttsNote = TTS_OFF_NOTE;
       return;
     }
     state.ttsReady = true;
     state.ttsNote =
-      "使用设备系统语音（优先 fr-FR）。不同手机音色与是否含法语包可能不同。";
+      "使用设备系统语音（优先 fr-FR）。没有声音时请检查静音键和媒体音量。";
+  }
+
+  function disableTts(note) {
+    state.ttsReady = false;
+    state.ttsNote = note || TTS_OFF_NOTE;
+    applyTtsVisibility();
+    rerenderCurrent();
+  }
+
+  function applyTtsVisibility() {
+    var quizSpeak = $("btnQuizSpeak");
+    if (quizSpeak) quizSpeak.style.display = state.ttsReady ? "" : "none";
+    var readTab = document.querySelector('.tab[data-tab="read"]');
+    if (readTab) readTab.textContent = state.ttsReady ? "名著朗读" : "名著短文";
+    var readHint = $("readHint");
+    if (readHint) {
+      readHint.textContent = state.ttsReady
+        ? "古典法语名著短文 · 整段 / 按句朗读 · 点赞收藏仅保存在本机。"
+        : "古典法语名著短文 · 法中对照 · 点赞收藏仅保存在本机。";
+    }
+  }
+
+  function clearSpeakWatchdog() {
+    if (speakWatchdog) {
+      clearTimeout(speakWatchdog);
+      speakWatchdog = null;
+    }
   }
 
   function pickFrenchVoice() {
@@ -319,6 +443,7 @@
   }
 
   function stopSpeak() {
+    clearSpeakWatchdog();
     state.speakingSentence = -1;
     try {
       if (window.speechSynthesis) window.speechSynthesis.cancel();
@@ -330,9 +455,11 @@
     if (!text) return;
     if (!state.ttsReady) {
       updateTtsNote(true);
+      showToast(state.ttsNote || TTS_OFF_NOTE, 2800);
       return;
     }
     opts = opts || {};
+    var started = false;
     try {
       if (!opts.queue) {
         window.speechSynthesis.cancel();
@@ -342,14 +469,38 @@
       var voice = pickFrenchVoice();
       if (voice) u.voice = voice;
       u.rate = typeof opts.rate === "number" ? opts.rate : rateValue();
-      if (typeof opts.onStart === "function") u.onstart = opts.onStart;
-      if (typeof opts.onEnd === "function") u.onend = opts.onEnd;
-      if (typeof opts.onError === "function") u.onerror = opts.onError;
+      u.onstart = function () {
+        started = true;
+        clearSpeakWatchdog();
+        if (typeof opts.onStart === "function") opts.onStart();
+      };
+      u.onend = function () {
+        started = true;
+        clearSpeakWatchdog();
+        if (typeof opts.onEnd === "function") opts.onEnd();
+      };
+      u.onerror = function (ev) {
+        clearSpeakWatchdog();
+        var reason = ev && ev.error;
+        // "interrupted" / "canceled" come from our own cancel(); not a failure.
+        if (reason !== "interrupted" && reason !== "canceled") {
+          showToast("朗读失败，请检查媒体音量或系统法语语音包，也可对照音标跟读。", 3000);
+        }
+        if (typeof opts.onError === "function") opts.onError(ev);
+      };
+      if (!opts.silent) showToast("正在朗读…", 1200);
+      clearSpeakWatchdog();
+      speakWatchdog = setTimeout(function () {
+        speakWatchdog = null;
+        if (!started) {
+          showToast("没有听到声音？请关闭静音、调大媒体音量，或对照音标跟读。", 3200);
+        }
+      }, 2500);
       window.speechSynthesis.speak(u);
     } catch (e) {
-      state.ttsReady = false;
-      state.ttsNote = "朗读失败。请查看音标，或确认系统已安装法语语音包。";
-      updateTtsNote(true);
+      clearSpeakWatchdog();
+      disableTts("朗读失败。请对照音标跟读，或确认系统已安装法语语音包。");
+      showToast(state.ttsNote, 3000);
     }
   }
 
@@ -413,7 +564,7 @@
 
   function loadProgress() {
     return getLocalData(STORAGE_KEY).then(function (data) {
-      if (!data || data.dayKey !== state.dayKey) return;
+      if (!data || data.dayKey !== state.dayKey || state.interacted) return;
       if (typeof data.flashIndex === "number") {
         state.flashIndex = Math.max(0, Math.min(data.flashIndex, state.daily.length - 1));
       }
@@ -429,8 +580,8 @@
   function loadReactions() {
     return Promise.all([getLocalData(LIKES_KEY), getLocalData(FAVS_KEY)]).then(
       function (pair) {
-        state.likes = normalizeMapBucket(pair[0]);
-        state.favs = normalizeMapBucket(pair[1]);
+        mergeBucket(state.likes, normalizeMapBucket(pair[0]));
+        mergeBucket(state.favs, normalizeMapBucket(pair[1]));
       }
     );
   }
@@ -489,7 +640,9 @@
     html += '<div class="word-zh">' + escapeHtml(w.zh) + "</div>";
     html += '<div class="word-ipa">' + escapeHtml(w.ipa || "") + "</div>";
     html += '<div class="actions">';
-    html += '<button type="button" class="btn orange btn-sm" data-speak-word="1">朗读单词</button>';
+    if (state.ttsReady) {
+      html += '<button type="button" class="btn orange btn-sm" data-speak-word="1">朗读单词</button>';
+    }
     html += reactButtonsHtml("words", w.id);
     html += "</div>";
     if (w.genderTip) {
@@ -505,10 +658,12 @@
       html += '<div class="fr">' + escapeHtml(ex[i].fr) + "</div>";
       html += '<div class="zh">' + escapeHtml(ex[i].zh) + "</div>";
       if (ex[i].tip) html += '<div class="tip">' + escapeHtml(ex[i].tip) + "</div>";
-      html +=
-        '<div class="ex-actions"><button type="button" class="btn secondary btn-sm" data-speak-ex="' +
-        i +
-        '">朗读例句</button></div>';
+      if (state.ttsReady) {
+        html +=
+          '<div class="ex-actions"><button type="button" class="btn secondary btn-sm" data-speak-ex="' +
+          i +
+          '">朗读例句</button></div>';
+      }
       html += "</div>";
     }
     card.innerHTML = html;
@@ -561,10 +716,12 @@
       if (item.genderTip) {
         html += '<div class="tip">' + escapeHtml(item.genderTip) + "</div>";
       }
-      html +=
-        '<div class="actions" style="margin-top:10px;"><button type="button" class="btn secondary btn-sm" data-gender-speak="' +
-        escapeHtml(item.id) +
-        '">朗读</button></div>';
+      if (state.ttsReady) {
+        html +=
+          '<div class="actions" style="margin-top:10px;"><button type="button" class="btn secondary btn-sm" data-gender-speak="' +
+          escapeHtml(item.id) +
+          '">朗读</button></div>';
+      }
       html += "</div>";
     }
     if (!q && nouns.length > max) {
@@ -761,36 +918,38 @@
     html += "</div>";
     html += '<div class="passage-zh">' + escapeHtml(p.zh || "") + "</div>";
 
-    html += '<div class="opt-row">';
-    html += '<div class="opt-label">朗读模式</div>';
-    html += '<div class="seg" id="segMode">';
-    html +=
-      '<button type="button" data-mode="all"' +
-      (state.readMode === "all" ? ' class="is-on"' : "") +
-      ">整段朗读</button>";
-    html +=
-      '<button type="button" data-mode="sent"' +
-      (state.readMode === "sent" ? ' class="is-on"' : "") +
-      ">按句朗读</button>";
-    html += "</div>";
-    html += '<div class="opt-label">语速</div>';
-    html += '<div class="seg" id="segRate">';
-    html +=
-      '<button type="button" data-rate="slow"' +
-      (state.readRate === "slow" ? ' class="is-on"' : "") +
-      ">慢速</button>";
-    html +=
-      '<button type="button" data-rate="normal"' +
-      (state.readRate === "normal" ? ' class="is-on"' : "") +
-      ">常速</button>";
-    html += "</div>";
-    html += "</div>";
+    if (state.ttsReady) {
+      html += '<div class="opt-row">';
+      html += '<div class="opt-label">朗读模式</div>';
+      html += '<div class="seg" id="segMode">';
+      html +=
+        '<button type="button" data-mode="all"' +
+        (state.readMode === "all" ? ' class="is-on"' : "") +
+        ">整段朗读</button>";
+      html +=
+        '<button type="button" data-mode="sent"' +
+        (state.readMode === "sent" ? ' class="is-on"' : "") +
+        ">按句朗读</button>";
+      html += "</div>";
+      html += '<div class="opt-label">语速</div>';
+      html += '<div class="seg" id="segRate">';
+      html +=
+        '<button type="button" data-rate="slow"' +
+        (state.readRate === "slow" ? ' class="is-on"' : "") +
+        ">慢速</button>";
+      html +=
+        '<button type="button" data-rate="normal"' +
+        (state.readRate === "normal" ? ' class="is-on"' : "") +
+        ">常速</button>";
+      html += "</div>";
+      html += "</div>";
 
-    html += '<div class="actions" style="margin-top:12px;">';
-    html +=
-      '<button type="button" class="btn orange" id="btnPassageSpeak" style="-webkit-flex:1;flex:1;">开始朗读</button>';
-    html += '<button type="button" class="btn secondary" id="btnPassageStop">停止</button>';
-    html += "</div>";
+      html += '<div class="actions" style="margin-top:12px;">';
+      html +=
+        '<button type="button" class="btn orange" id="btnPassageSpeak" style="-webkit-flex:1;flex:1;">开始朗读</button>';
+      html += '<button type="button" class="btn secondary" id="btnPassageStop">停止</button>';
+      html += "</div>";
+    }
     html += '<div class="tts-note" id="ttsNote"></div>';
     card.innerHTML = html;
     updateTtsNote(!state.ttsReady);
@@ -868,10 +1027,12 @@
         html += '<div class="word-zh">' + escapeHtml(w.zh) + "</div>";
         html += '<div class="word-ipa">' + escapeHtml(w.ipa || "") + "</div>";
         html += '<div class="actions">';
-        html +=
-          '<button type="button" class="btn secondary btn-sm" data-fav-speak-word="' +
-          escapeHtml(w.id) +
-          '">朗读</button>';
+        if (state.ttsReady) {
+          html +=
+            '<button type="button" class="btn secondary btn-sm" data-fav-speak-word="' +
+            escapeHtml(w.id) +
+            '">朗读</button>';
+        }
         html += reactButtonsHtml("words", w.id);
         html += "</div></div>";
       }
@@ -908,16 +1069,80 @@
     if (react === "like") toggleLike(kind, id);
     else if (react === "fav") toggleFav(kind, id);
     else return false;
-    if (state.tab === "flash") renderFlash();
-    else if (state.tab === "read" && state.activePassageId) showPassageDetail(state.activePassageId);
-    else if (state.tab === "read") showPassageList();
-    else if (state.tab === "fav") renderFav();
+    rerenderCurrent();
+    showToast(
+      react === "like"
+        ? isLiked(kind, id) ? "已点赞" : "已取消点赞"
+        : isFaved(kind, id) ? "已收藏，可在「收藏」页查看" : "已取消收藏",
+      1400
+    );
     return true;
   }
 
+  function rerenderCurrent() {
+    if (state.tab === "flash") renderFlash();
+    else if (state.tab === "gender") renderGenderList($("genderSearch").value || "");
+    else if (state.tab === "read" && state.activePassageId) showPassageDetail(state.activePassageId);
+    else if (state.tab === "read") showPassageList();
+    else if (state.tab === "fav") renderFav();
+  }
+
+  function renderAll() {
+    applyTtsVisibility();
+    renderFlash();
+    renderGenderList($("genderSearch").value || "");
+    renderQuiz();
+    if (state.activePassageId) showPassageDetail(state.activePassageId);
+    else showPassageList();
+    renderFav();
+    updateTtsNote(!state.ttsReady);
+  }
+
+  // Keep the header (and the tab row under it) clear of the container's
+  // status bar / top-right capsule buttons. getWindowInfo is client 9.49+.
+  function adjustForContainerChrome() {
+    var miniTool = window.xhs && window.xhs.miniTool;
+    if (!miniTool || typeof miniTool.getWindowInfo !== "function") return;
+    getBuildVersion()
+      .then(function (buildVersion) {
+        if (!isClientVersionAtLeast(buildVersion, WINDOW_INFO_MIN_CLIENT_VERSION)) return null;
+        var pending;
+        try {
+          pending = miniTool.getWindowInfo();
+        } catch (error) {
+          return null;
+        }
+        return withTimeout(pending, BRIDGE_TIMEOUT_MS, null);
+      })
+      .then(function (info) {
+        if (!info) return;
+        var top = 0;
+        if (info.safeArea && typeof info.safeArea.top === "number") top = info.safeArea.top;
+        var mb = info.menuButtons || {};
+        var keys = ["back", "me", "share"];
+        var i;
+        for (i = 0; i < keys.length; i++) {
+          var r = mb[keys[i]];
+          if (r && typeof r.bottom === "number" && r.bottom > top) top = r.bottom;
+        }
+        if (!(top > 0) || top > 160) return;
+        var header = document.querySelector(".header");
+        if (header) header.style.paddingTop = Math.ceil(top + 8) + "px";
+      })
+      .catch(function () {});
+  }
+
   function bindEvents() {
+    function on(target, type, fn) {
+      if (!target) return;
+      target.addEventListener(type, safe(fn));
+    }
+
+    // Lets :active press states render on iOS WebKit.
+    document.addEventListener("touchstart", function () {}, { passive: true });
+
     var tabs = $("tabs");
-    tabs.addEventListener("click", function (e) {
+    on(tabs, "click", function (e) {
       var t = e.target;
       while (t && t !== tabs && !(t.getAttribute && t.getAttribute("data-tab"))) {
         t = t.parentNode;
@@ -927,20 +1152,20 @@
       if (name) switchTab(name);
     });
 
-    $("btnPrev").addEventListener("click", function () {
+    on($("btnPrev"), "click", function () {
       if (!state.daily.length) return;
       state.flashIndex = (state.flashIndex - 1 + state.daily.length) % state.daily.length;
       saveProgress();
       renderFlash();
     });
-    $("btnNext").addEventListener("click", function () {
+    on($("btnNext"), "click", function () {
       if (!state.daily.length) return;
       state.flashIndex = (state.flashIndex + 1) % state.daily.length;
       saveProgress();
       renderFlash();
     });
 
-    $("flashCard").addEventListener("click", function (e) {
+    on($("flashCard"), "click", function (e) {
       var t = e.target;
       while (t && t !== $("flashCard")) {
         if (t.getAttribute && t.getAttribute("data-react")) {
@@ -965,7 +1190,7 @@
     });
 
     var searchTimer = null;
-    $("genderSearch").addEventListener("input", function () {
+    on($("genderSearch"), "input", function () {
       var val = $("genderSearch").value;
       if (searchTimer) clearTimeout(searchTimer);
       searchTimer = setTimeout(function () {
@@ -973,7 +1198,7 @@
       }, 120);
     });
 
-    $("genderList").addEventListener("click", function (e) {
+    on($("genderList"), "click", function (e) {
       var t = e.target;
       while (t && t !== $("genderList")) {
         if (t.getAttribute && t.getAttribute("data-gender-speak")) {
@@ -991,30 +1216,30 @@
       }
     });
 
-    $("btnQuizCheck").addEventListener("click", checkQuiz);
-    $("btnQuizSkip").addEventListener("click", function () {
+    on($("btnQuizCheck"), "click", checkQuiz);
+    on($("btnQuizSkip"), "click", function () {
       nextQuiz();
     });
-    $("btnQuizNext").addEventListener("click", function () {
+    on($("btnQuizNext"), "click", function () {
       nextQuiz();
     });
-    $("btnQuizSpeak").addEventListener("click", function () {
+    on($("btnQuizSpeak"), "click", function () {
       var w = currentQuizWord();
       if (w && w.cloze && w.cloze.full) speakFrench(w.cloze.full, { rate: 0.92 });
     });
-    $("quizInput").addEventListener("keydown", function (e) {
+    on($("quizInput"), "keydown", function (e) {
       if (e.key === "Enter" || e.keyCode === 13) {
         e.preventDefault();
         checkQuiz();
       }
     });
 
-    $("btnReadBack").addEventListener("click", function () {
+    on($("btnReadBack"), "click", function () {
       stopSpeak();
       showPassageList();
     });
 
-    $("passageList").addEventListener("click", function (e) {
+    on($("passageList"), "click", function (e) {
       var t = e.target;
       while (t && t !== $("passageList")) {
         if (t.getAttribute && t.getAttribute("data-open-passage")) {
@@ -1025,7 +1250,7 @@
       }
     });
 
-    $("passageCard").addEventListener("click", function (e) {
+    on($("passageCard"), "click", function (e) {
       var t = e.target;
       while (t && t !== $("passageCard")) {
         if (t.getAttribute && t.getAttribute("data-react")) {
@@ -1055,7 +1280,7 @@
       }
     });
 
-    $("favContent").addEventListener("click", function (e) {
+    on($("favContent"), "click", function (e) {
       var t = e.target;
       while (t && t !== $("favContent")) {
         if (t.getAttribute && t.getAttribute("data-react")) {
@@ -1083,8 +1308,8 @@
     if (window.speechSynthesis) {
       try {
         window.speechSynthesis.onvoiceschanged = function () {
-          detectTts();
-          updateTtsNote(!state.ttsReady);
+          if (!state.ttsReady) return;
+          updateTtsNote(false);
         };
       } catch (e) {}
     }
@@ -1103,17 +1328,25 @@
       passages.length +
       " · " +
       state.dayKey;
+    var ver = $("appVersion");
+    if (ver) ver.textContent = "v" + APP_VERSION;
 
     bindEvents();
+    // Render immediately; never gate the first paint on container bridges.
+    renderAll();
+    adjustForContainerChrome();
 
-    Promise.all([loadProgress(), loadReactions()]).then(function () {
-      renderFlash();
-      renderGenderList("");
-      renderQuiz();
-      showPassageList();
-      renderFav();
-      updateTtsNote(!state.ttsReady);
-    });
+    Promise.all([loadProgress(), loadReactions()]).then(
+      function () {
+        if (!state.interacted) {
+          renderAll();
+        } else {
+          renderFav();
+          if (state.tab === "flash") renderFlash();
+        }
+      },
+      function () {}
+    );
   }
 
   if (document.readyState === "loading") {

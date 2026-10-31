@@ -8,11 +8,13 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
+    html { touch-action: manipulation; -webkit-text-size-adjust: 100%; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
                    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
       -webkit-font-smoothing: antialiased;
       -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
       background: #F7F1E8;
       color: #2C2A26;
       display: -webkit-flex;
@@ -418,6 +420,35 @@
       color: #1F6F6A;
     }
     .fav-section-title:first-child { margin-top: 0; }
+    .toast {
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: 32px;
+      bottom: calc(32px + env(safe-area-inset-bottom, 0px));
+      max-width: 448px;
+      margin: 0 auto;
+      padding: 10px 14px;
+      border-radius: 12px;
+      background: rgba(44, 42, 38, 0.9);
+      color: #fff;
+      font-size: 13px;
+      line-height: 1.45;
+      text-align: center;
+      opacity: 0;
+      visibility: hidden;
+      -webkit-transition: opacity 0.18s ease;
+      transition: opacity 0.18s ease;
+      pointer-events: none;
+      z-index: 100;
+    }
+    .toast.is-show { opacity: 1; visibility: visible; }
+    .app-version {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 11px;
+      color: #B3A898;
+    }
     .back-link {
       border: none;
       background: transparent;
@@ -427,6 +458,14 @@
       cursor: pointer;
       padding: 0;
       margin-bottom: 10px;
+    }
+    /* Safe-area enhancement: Chrome 61 has no env(), so it keeps the plain
+       values above; newer kernels and the PC simulator (which injects
+       --safe-area-inset-* variables) use this layer. */
+    @supports (padding-top: env(safe-area-inset-top)) {
+      .header { padding-top: calc(14px + var(--safe-area-inset-top, env(safe-area-inset-top, 0px))); }
+      .main { padding-bottom: calc(24px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); }
+      .toast { bottom: calc(32px + var(--safe-area-inset-bottom, env(safe-area-inset-bottom, 0px))); }
     }
   </style>
 </head>
@@ -484,7 +523,7 @@
 
       <section class="panel" id="panel-read" role="tabpanel">
         <div id="readListView">
-          <p class="hint">古典法语名著短文 · 整段 / 按句朗读 · 点赞收藏仅保存在本机小工具内。</p>
+          <p class="hint" id="readHint">古典法语名著短文 · 整段 / 按句朗读 · 点赞收藏仅保存在本机。</p>
           <div id="passageList"></div>
         </div>
         <div id="readDetailView" style="display:none;">
@@ -496,9 +535,11 @@
       <section class="panel" id="panel-fav" role="tabpanel">
         <p class="hint">本地收藏的单词与名著短文（点赞不在此列表，仅收藏）。</p>
         <div id="favContent"></div>
+        <div class="app-version" id="appVersion">v1.0.2</div>
       </section>
     </main>
   </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <script src="./words.js"></script>
   <script src="./passages.js"></script>
   <script src="./app.js"></script>
