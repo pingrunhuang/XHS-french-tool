@@ -24,8 +24,22 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 
 - `src/`：源码
 - `dist/`：与 `src` 相同的打包输入
-- `french-daily-5.zip`：v1.0.1 送审包，md5 `ca25e490e768e63ee8ed156e11d5bf9c`
+- `french-daily-5.zip`：v1.0.2 待上传包，md5 `5e6c5a1b1bd48c0cbf28e8d4897419b7`
 - `assets/`：`icon.jpg`、`cover.jpg`
+
+## 版本记录
+
+### v1.0.2（修复 v1.0.1 审核驳回：「页面按钮无法点击」）
+
+- 根因：朗读类按钮依赖 Web Speech API（`speechSynthesis`），安卓小红书 WebView（Android System WebView）不提供该 API，点击后代码静默 return、没有任何反馈；同时首屏内容要等端能力（`getLaunchOptions` / `getStorage`）异步返回后才渲染，桥接慢、挂起或抛错时页面是空的、按钮点了没反应。
+- 首屏同步渲染，端存储读取改为后台进行（1.5s 超时兜底、同步异常捕获、结果合并不覆盖用户操作）。
+- 朗读改为渐进增强：不支持 TTS 的环境隐藏全部朗读按钮，「名著朗读」tab 显示为「名著短文」；支持时点击有「正在朗读…」提示，失败或 2.5s 无声音给出明确提示。
+- 全局 toast 反馈（`pointer-events: none`，不遮挡点击）；点赞 / 收藏有提示。
+- 所有事件处理统一 try/catch 包装，单个异常不会让按钮失效；iOS 补 `touchstart` 让按压态生效。
+- 安全区：Chrome 61 保留普通值，新内核和 PC 模拟器通过 `@supports` 使用 `var(--safe-area-inset-*, env(...))`；客户端 9.49+ 用 `getWindowInfo` 避让顶部胶囊按钮。
+- 收藏页底部显示版本号 v1.0.2。
+
+目录说明：`src/` 源码，`dist/` 与 `src/` 一致（打包来源），`french-daily-5.zip` 为待上传包（index.html 在 zip 根目录）。
 
 ## 这个仓库记什么
 
@@ -33,7 +47,7 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 - 用功能完整性检查清单核对每个页面和关键操作
 - 优先看按钮点了没反应、点错、或被遮罩挡住的问题
 
-源码、打包输入和 v1.0.1 送审包已在本仓库，见「源码结构」。
+源码、打包输入和 v1.0.2 待上传包已在本仓库，见「源码结构」。
 
 ## 怎么提 Bug
 
