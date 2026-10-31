@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "1.0.2";
+  var APP_VERSION = "1.0.3";
   var STORAGE_MIN_CLIENT_VERSION = 9460;
   var WINDOW_INFO_MIN_CLIENT_VERSION = 9490;
   var BRIDGE_TIMEOUT_MS = 1500;
@@ -27,12 +27,23 @@
     likes: { words: {}, passages: {} },
     favs: { words: {}, passages: {} },
     activePassageId: null,
-    readMode: "all",
     readRate: "normal",
-    speakingSentence: -1,
     interacted: false
   };
 
+  // Passage reader: one utterance per sentence. Pause = cancel + remember the
+  // sentence index, resume = speak that sentence again. This avoids
+  // speechSynthesis.pause()/resume(), which are unreliable on iOS WebKit, and
+  // gives exact sentence tracking for the highlight.
+  var reader = {
+    status: "idle", // idle | playing | paused
+    passageId: null,
+    sentences: [],
+    index: 0,
+    token: 0,
+    finished: false
+  };
+  var currentUtterance = null; // keep a ref so iOS does not GC it before onend
   var toastTimer = null;
   var speakWatchdog = null;
   var buildVersionPromise = null;
@@ -394,6 +405,7 @@
   }
 
   function disableTts(note) {
+    stopSpeak();
     state.ttsReady = false;
     state.ttsNote = note || TTS_OFF_NOTE;
     applyTtsVisibility();
@@ -408,7 +420,7 @@
     var readHint = $("readHint");
     if (readHint) {
       readHint.textContent = state.ttsReady
-        ? "古典法语名著短文 · 整段 / 按句朗读 · 点赞收藏仅保存在本机。"
+        ? "古典法语名著短文 · 整段朗读可暂停 / 继续 · 点赞收藏仅保存在本机。"
         : "古典法语名著短文 · 法中对照 · 点赞收藏仅保存在本机。";
     }
   }
@@ -442,13 +454,20 @@
     return state.readRate === "slow" ? 0.75 : 1.0;
   }
 
-  function stopSpeak() {
+  function cancelSpeech() {
     clearSpeakWatchdog();
-    state.speakingSentence = -1;
     try {
       if (window.speechSynthesis) window.speechSynthesis.cancel();
     } catch (e) {}
-    highlightSentence(-1);
+  }
+
+  function stopSpeak() {
+    reader.token += 1;
+    reader.status = "idle";
+    reader.index = 0;
+    reader.finished = false;
+    cancelSpeech();
+    applyReaderUI();
   }
 
   function speakFrench(text, opts) {
@@ -465,6 +484,7 @@
         window.speechSynthesis.cancel();
       }
       var u = new window.SpeechSynthesisUtterance(String(text));
+      currentUtterance = u;
       u.lang = "fr-FR";
       var voice = pickFrenchVoice();
       if (voice) u.voice = voice;
@@ -869,15 +889,151 @@
     box.innerHTML = html;
   }
 
-  function highlightSentence(idx) {
+  function scrollSentenceIntoView(el) {
+    var main = document.querySelector(".main");
+    if (!el || !main) return;
+    var mr = main.getBoundingClientRect();
+    var er = el.getBoundingClientRect();
+    var bandTop = mr.top + mr.height * 0.2;
+    var bandBottom = mr.top + mr.height * 0.7;
+    if (er.top >= bandTop && er.bottom <= bandBottom) return;
+    var target = main.scrollTop + (er.top - mr.top) - mr.height * 0.35;
+    if (target < 0) target = 0;
+    if (typeof main.scrollTo === "function" && "scrollBehavior" in document.documentElement.style) {
+      main.scrollTo({ top: target, behavior: "smooth" });
+    } else {
+      main.scrollTop = target;
+    }
+  }
+
+  // Mark the sentence being read (idx) or clear all (-1).
+  function highlightSentence(idx, paused) {
     var root = $("passageFrText");
     if (!root) return;
     var nodes = root.querySelectorAll(".sent");
     var i;
     for (i = 0; i < nodes.length; i++) {
-      if (i === idx) nodes[i].classList.add("is-playing");
-      else nodes[i].classList.remove("is-playing");
+      if (i === idx) {
+        nodes[i].classList.add("is-playing");
+        if (paused) nodes[i].classList.add("is-paused");
+        else nodes[i].classList.remove("is-paused");
+      } else {
+        nodes[i].classList.remove("is-playing");
+        nodes[i].classList.remove("is-paused");
+      }
     }
+    if (idx >= 0 && nodes[idx]) scrollSentenceIntoView(nodes[idx]);
+  }
+
+  // Sync highlight, buttons and progress text with the reader state.
+  function applyReaderUI() {
+    var onThisPassage = reader.passageId && reader.passageId === state.activePassageId;
+    var active = onThisPassage && reader.status !== "idle";
+    highlightSentence(active ? reader.index : -1, reader.status === "paused");
+    var btn = $("btnPassageSpeak");
+    if (btn) {
+      if (active && reader.status === "playing") btn.textContent = "暂停";
+      else if (active && reader.status === "paused") btn.textContent = "继续";
+      else btn.textContent = onThisPassage && reader.finished ? "再读一遍" : "开始朗读";
+    }
+    var stop = $("btnPassageStop");
+    if (stop) stop.disabled = !active;
+    var prog = $("readProgress");
+    if (prog) {
+      var total = splitSentences((findPassage(state.activePassageId) || {}).fr).length;
+      if (active) {
+        prog.textContent =
+          (reader.status === "paused" ? "已暂停 · " : "朗读中 · ") +
+          "第 " + (reader.index + 1) + " / " + reader.sentences.length + " 句";
+      } else if (onThisPassage && reader.finished) {
+        prog.textContent = "已读完 · 共 " + total + " 句";
+      } else {
+        prog.textContent = "共 " + total + " 句 · 读到哪句就高亮哪句";
+      }
+    }
+  }
+
+  function speakCurrentSentence(queue) {
+    var token = ++reader.token;
+    var idx = reader.index;
+    applyReaderUI();
+    speakFrench(reader.sentences[idx], {
+      rate: rateValue(), // read per sentence, so a speed change applies from the next one
+      queue: queue,
+      silent: true,
+      onEnd: function () {
+        if (token !== reader.token || reader.status !== "playing") return;
+        if (reader.index + 1 >= reader.sentences.length) {
+          reader.status = "idle";
+          reader.index = 0;
+          reader.finished = true;
+          reader.token += 1;
+          applyReaderUI();
+          return;
+        }
+        reader.index += 1;
+        speakCurrentSentence(true);
+      },
+      onError: function (ev) {
+        if (token !== reader.token) return;
+        var reason = ev && ev.error;
+        if (reason === "interrupted" || reason === "canceled") return;
+        stopSpeak();
+      }
+    });
+  }
+
+  function startReading() {
+    var p = findPassage(state.activePassageId);
+    if (!p) return;
+    if (!state.ttsReady) {
+      updateTtsNote(true);
+      showToast(state.ttsNote || TTS_OFF_NOTE, 2800);
+      return;
+    }
+    var sentences = splitSentences(p.fr);
+    if (!sentences.length) return;
+    reader.passageId = p.id;
+    reader.sentences = sentences;
+    reader.index = 0;
+    reader.finished = false;
+    reader.status = "playing";
+    showToast("正在朗读…", 1200);
+    speakCurrentSentence(false);
+  }
+
+  function pauseReading() {
+    if (reader.status !== "playing") return;
+    reader.status = "paused";
+    reader.token += 1; // ignore callbacks from the cancelled utterance
+    cancelSpeech();
+    applyReaderUI();
+  }
+
+  function resumeReading() {
+    if (reader.status !== "paused") return;
+    reader.status = "playing";
+    speakCurrentSentence(false); // restart the paused sentence from its beginning
+  }
+
+  function togglePassagePlayback() {
+    var onThisPassage = reader.passageId === state.activePassageId;
+    if (onThisPassage && reader.status === "playing") pauseReading();
+    else if (onThisPassage && reader.status === "paused") resumeReading();
+    else startReading();
+  }
+
+  function setReadRate(rate) {
+    state.readRate = rate === "slow" ? "slow" : "normal";
+    var seg = $("segRate");
+    if (!seg) return;
+    var btns = seg.querySelectorAll("button");
+    var i;
+    for (i = 0; i < btns.length; i++) {
+      if (btns[i].getAttribute("data-rate") === state.readRate) btns[i].classList.add("is-on");
+      else btns[i].classList.remove("is-on");
+    }
+    if (reader.status === "playing") showToast("语速将从下一句生效", 1400);
   }
 
   function showPassageDetail(id) {
@@ -885,6 +1041,10 @@
     if (!p) {
       showPassageList();
       return;
+    }
+    if (reader.passageId && reader.passageId !== id) {
+      stopSpeak();
+      reader.passageId = null;
     }
     state.activePassageId = id;
     $("readListView").style.display = "none";
@@ -920,17 +1080,6 @@
 
     if (state.ttsReady) {
       html += '<div class="opt-row">';
-      html += '<div class="opt-label">朗读模式</div>';
-      html += '<div class="seg" id="segMode">';
-      html +=
-        '<button type="button" data-mode="all"' +
-        (state.readMode === "all" ? ' class="is-on"' : "") +
-        ">整段朗读</button>";
-      html +=
-        '<button type="button" data-mode="sent"' +
-        (state.readMode === "sent" ? ' class="is-on"' : "") +
-        ">按句朗读</button>";
-      html += "</div>";
       html += '<div class="opt-label">语速</div>';
       html += '<div class="seg" id="segRate">';
       html +=
@@ -947,63 +1096,14 @@
       html += '<div class="actions" style="margin-top:12px;">';
       html +=
         '<button type="button" class="btn orange" id="btnPassageSpeak" style="-webkit-flex:1;flex:1;">开始朗读</button>';
-      html += '<button type="button" class="btn secondary" id="btnPassageStop">停止</button>';
+      html += '<button type="button" class="btn secondary" id="btnPassageStop" disabled>停止</button>';
       html += "</div>";
+      html += '<div class="read-progress" id="readProgress"></div>';
     }
     html += '<div class="tts-note" id="ttsNote"></div>';
     card.innerHTML = html;
     updateTtsNote(!state.ttsReady);
-  }
-
-  function speakPassage() {
-    var p = findPassage(state.activePassageId);
-    if (!p) return;
-    if (!state.ttsReady) {
-      updateTtsNote(true);
-      return;
-    }
-    stopSpeak();
-    var sentences = splitSentences(p.fr);
-    if (!sentences.length) return;
-
-    if (state.readMode === "all") {
-      speakFrench(p.fr, {
-        rate: rateValue(),
-        onStart: function () {
-          highlightSentence(0);
-        },
-        onEnd: function () {
-          highlightSentence(-1);
-        }
-      });
-      return;
-    }
-
-    var idx = 0;
-    function speakNext() {
-      if (idx >= sentences.length) {
-        highlightSentence(-1);
-        state.speakingSentence = -1;
-        return;
-      }
-      state.speakingSentence = idx;
-      highlightSentence(idx);
-      var cur = idx;
-      speakFrench(sentences[cur], {
-        rate: rateValue(),
-        queue: false,
-        onEnd: function () {
-          if (state.speakingSentence !== cur) return;
-          idx += 1;
-          speakNext();
-        },
-        onError: function () {
-          highlightSentence(-1);
-          state.speakingSentence = -1;
-        }
-      });
-    }
-    speakNext();
+    applyReaderUI();
   }
 
   function renderFav() {
@@ -1138,6 +1238,15 @@
       target.addEventListener(type, safe(fn));
     }
 
+    function onHidden() {
+      if (reader.status === "playing") pauseReading();
+      else cancelSpeech();
+    }
+    document.addEventListener("visibilitychange", safe(function () {
+      if (document.hidden) onHidden();
+    }));
+    window.addEventListener("pagehide", safe(onHidden));
+
     // Lets :active press states render on iOS WebKit.
     document.addEventListener("touchstart", function () {}, { passive: true });
 
@@ -1257,19 +1366,12 @@
           handleReactClick(t);
           return;
         }
-        if (t.getAttribute && t.getAttribute("data-mode")) {
-          state.readMode = t.getAttribute("data-mode");
-          stopSpeak();
-          showPassageDetail(state.activePassageId);
-          return;
-        }
         if (t.getAttribute && t.getAttribute("data-rate")) {
-          state.readRate = t.getAttribute("data-rate");
-          showPassageDetail(state.activePassageId);
+          setReadRate(t.getAttribute("data-rate"));
           return;
         }
         if (t.id === "btnPassageSpeak") {
-          speakPassage();
+          togglePassagePlayback();
           return;
         }
         if (t.id === "btnPassageStop") {

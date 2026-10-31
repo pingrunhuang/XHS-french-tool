@@ -29,6 +29,18 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 
 ## 版本记录
 
+### v1.0.3（名著朗读：整段朗读暂停 / 继续 + 当前句高亮放大，仅 iOS）
+
+对应 issue #3。
+
+- 去掉「按句朗读」和「朗读模式」切换，只保留整段朗读。
+- 整段朗读支持 开始 → 暂停 → 继续，另有「停止」，读完后按钮变成「再读一遍」。内部按句拆成多个 utterance 依次朗读；暂停 = `cancel()` 并记住当前句，继续 = 从当前句开头重读。不依赖 iOS WebKit 上不稳定的 `speechSynthesis.pause()` / `resume()`。
+- 正在读的句子高亮并放大（背景色 + 1.18em 字号 + 加粗，0.25s 过渡，Chrome 61 可用），暂停时变成灰色样式，并自动滚动到可视区域；停止或读完后清除高亮。按钮下方显示进度「朗读中 · 第 n / N 句」。
+- 语速（慢速 / 常速）保留，朗读中切换会从下一句生效。
+- 离开名著 tab、返回篇目列表、切换篇目时停止朗读；页面隐藏（visibilitychange / pagehide）时自动暂停。
+- 只在支持 `speechSynthesis` 的环境（iOS）显示；安卓和 v1.0.2 一样隐藏所有朗读控件。不使用预录音频。
+- 收藏页底部显示 v1.0.3。
+
 ### v1.0.2（修复 v1.0.1 审核驳回：「页面按钮无法点击」）
 
 - 根因：朗读类按钮依赖 Web Speech API（`speechSynthesis`），安卓小红书 WebView（Android System WebView）不提供该 API，点击后代码静默 return、没有任何反馈；同时首屏内容要等端能力（`getLaunchOptions` / `getStorage`）异步返回后才渲染，桥接慢、挂起或抛错时页面是空的、按钮点了没反应。

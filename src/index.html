@@ -364,9 +364,29 @@
       user-select: text;
       white-space: pre-wrap;
     }
+    .passage-fr .sent {
+      border-radius: 4px;
+      font-size: 1em;
+      -webkit-transition: font-size 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+      transition: font-size 0.25s ease, background-color 0.25s ease, color 0.25s ease;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+    }
     .passage-fr .sent.is-playing {
       background: #FCE8DB;
-      border-radius: 4px;
+      color: #A8460F;
+      font-size: 1.18em;
+      font-weight: 600;
+      padding: 1px 3px;
+    }
+    .passage-fr .sent.is-playing.is-paused {
+      background: #F0EAE0;
+      color: #6B6258;
+    }
+    .read-progress {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #8A7F72;
     }
     .passage-zh {
       margin-top: 12px;
@@ -523,7 +543,7 @@
 
       <section class="panel" id="panel-read" role="tabpanel">
         <div id="readListView">
-          <p class="hint" id="readHint">古典法语名著短文 · 整段 / 按句朗读 · 点赞收藏仅保存在本机。</p>
+          <p class="hint" id="readHint">古典法语名著短文 · 整段朗读可暂停 / 继续 · 点赞收藏仅保存在本机。</p>
           <div id="passageList"></div>
         </div>
         <div id="readDetailView" style="display:none;">
@@ -535,7 +555,7 @@
       <section class="panel" id="panel-fav" role="tabpanel">
         <p class="hint">本地收藏的单词与名著短文（点赞不在此列表，仅收藏）。</p>
         <div id="favContent"></div>
-        <div class="app-version" id="appVersion">v1.0.2</div>
+        <div class="app-version" id="appVersion">v1.0.3</div>
       </section>
     </main>
   </div>
