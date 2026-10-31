@@ -22,12 +22,27 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 
 ## 源码结构
 
-- `src/`：源码
-- `dist/`：与 `src` 相同的打包输入
-- `french-daily-5.zip`：v1.0.4 待上传包，md5 `e117984bcb3c7ccb73dc56aedeebced1`
+- `src/`：源码（含 `words.json`，仅仓库保留，不打进上传包）
+- `dist/`：打包输入（不含 `words.json`）
+- `french-daily-5.zip`：v1.0.5 待上传包，md5 `ff747178458188a2bd20ff766267ac5e`（62959 bytes；zip 根目录无 `words.json`）
+- `french-daily-5-v1.0.4-rejected.zip`：v1.0.4 驳回备份，md5 `e117984bcb3c7ccb73dc56aedeebced1`
 - `assets/`：`icon.jpg`、`cover.jpg`
 
 ## 版本记录
+
+### v1.0.5（修复审核驳回：大词库阻塞导致按钮无法点击）
+
+对应 issue #7。v1.0.4（appId `6ae58ef68eb4360015cc7e91`）送审被驳回：「小工具功能缺陷，可能是页面按钮无法点击」。
+
+- 主因：`words.js` 约 282KB 且排在 `app.js` 之前解析，按钮已画出但点击监听尚未绑定。
+- 新增轻量 `shell.js`，先于词库绑定 Tab；加载中点击主按钮会提示「词库加载中…」。
+- 脚本顺序：`shell.js` → `words.js` → `passages.js` → `app.js`。上传包去掉未引用的 `words.json`（`src/words.json` 仍留在仓库）。
+- 安卓强制关闭朗读与语速控件；首屏只渲染当前 Tab，全库洗牌与其它面板延后。
+- Tab 同屏可点；`bindEvents` 对 WebView 的 `touchstart` 差异更稳妥。
+- 版本号 **v1.0.5**。600 词、CLB1–5 分层每日抽 5 词、iOS 四档语速（0.25× / 0.5× / 0.75× / 1×）保留。
+- zip：`french-daily-5.zip`，md5 `ff747178458188a2bd20ff766267ac5e`，62959 bytes。驳回包备份为 `french-daily-5-v1.0.4-rejected.zip`。
+
+请将 zip 以「更新版本」挂已发布 appId `6ae58ef68eb4360015cc7e91`。先在创服平台模拟器点验，再分别用 Android / iOS 真机扫码。浏览器直跑不可作为验收依据。
 
 ### v1.0.4（扩词库 CLB 1–5 + 朗读四档语速）
 
@@ -63,9 +78,9 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 #### 版本与产物
 
 - 版本号：收藏页页脚 **v1.0.4**
-- zip：`french-daily-5.zip`
+- 送审包（已驳回，备份为 `french-daily-5-v1.0.4-rejected.zip`）
 - md5：`e117984bcb3c7ccb73dc56aedeebced1`
-- 体积：99475 bytes（约 97.1 KiB）
+- 体积：99475 bytes（约 97.1 KiB）；包内含未引用的 `words.json`
 - 审计：`write_manifest` + `audit_artifact`（Node/Python）对 `dist/` 与最终 zip 均为 **PASS**
 - 名著朗读 / passages **未改**（本版只扩词库 + 语速）
 
@@ -103,7 +118,7 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 - 用功能完整性检查清单核对每个页面和关键操作
 - 优先看按钮点了没反应、点错、或被遮罩挡住的问题
 
-源码、打包输入和 v1.0.4 待上传包已在本仓库，见「源码结构」。
+源码、打包输入和 v1.0.5 待上传包已在本仓库，见「源码结构」。
 
 ## 怎么提 Bug
 

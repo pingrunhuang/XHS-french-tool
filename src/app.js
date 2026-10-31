@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "1.0.4";
+  var APP_VERSION = "1.0.5";
   var STORAGE_MIN_CLIENT_VERSION = 9460;
   var WINDOW_INFO_MIN_CLIENT_VERSION = 9490;
   var BRIDGE_TIMEOUT_MS = 1500;
@@ -445,11 +445,29 @@
     );
   }
 
-  // Speech is a progressive enhancement: Android System WebView does not
-  // expose the Web Speech API, so every speak control is hidden there instead
-  // of rendering buttons that do nothing.
+  // XHS Android WebView often stubs or breaks speechSynthesis. Treat Android
+  // as TTS-off so rate/speak controls never cover or confuse the real UI.
+  function isAndroidLike() {
+    try {
+      var ua = (navigator && navigator.userAgent) || "";
+      if (/Android/i.test(ua) && !/iPhone|iPad|iPod/i.test(ua)) return true;
+      // Some containers omit "Android" but set platform
+      if (
+        navigator.platform &&
+        /Linux/i.test(navigator.platform) &&
+        /Mobile/i.test(ua) &&
+        !/iPhone|iPad|iPod/i.test(ua)
+      ) {
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  // Speech is a progressive enhancement: hide every speak control on Android
+  // (and when the API is missing) instead of rendering buttons that do nothing.
   function detectTts() {
-    if (!hasTtsApi()) {
+    if (isAndroidLike() || !hasTtsApi()) {
       state.ttsReady = false;
       state.ttsNote = TTS_OFF_NOTE;
       return;
@@ -469,7 +487,20 @@
 
   function applyTtsVisibility() {
     var quizSpeak = $("btnQuizSpeak");
-    if (quizSpeak) quizSpeak.style.display = state.ttsReady ? "" : "none";
+    if (quizSpeak) {
+      if (state.ttsReady) {
+        quizSpeak.style.display = "";
+        quizSpeak.style.pointerEvents = "";
+        quizSpeak.removeAttribute("hidden");
+        quizSpeak.disabled = false;
+      } else {
+        // display:none + hidden + no pointer events: never intercept taps on Android
+        quizSpeak.style.display = "none";
+        quizSpeak.style.pointerEvents = "none";
+        quizSpeak.setAttribute("hidden", "hidden");
+        quizSpeak.disabled = true;
+      }
+    }
     var readTab = document.querySelector('.tab[data-tab="read"]');
     if (readTab) readTab.textContent = state.ttsReady ? "名著朗读" : "名著短文";
     var readHint = $("readHint");
@@ -718,12 +749,13 @@
       if (panels[i] === name) p.classList.add("is-active");
       else p.classList.remove("is-active");
     }
-    if (name === "read") {
+    if (name === "flash") renderFlash();
+    else if (name === "gender") renderGenderList(($("genderSearch") && $("genderSearch").value) || "");
+    else if (name === "quiz") renderQuiz();
+    else if (name === "read") {
       if (state.activePassageId) showPassageDetail(state.activePassageId);
       else showPassageList();
-    }
-    if (name === "fav") renderFav();
-    if (name === "flash") renderFlash();
+    } else if (name === "fav") renderFav();
   }
 
   function renderFlash() {
@@ -1292,13 +1324,31 @@
 
   function renderAll() {
     applyTtsVisibility();
-    renderFlash();
-    renderGenderList($("genderSearch").value || "");
-    renderQuiz();
-    if (state.activePassageId) showPassageDetail(state.activePassageId);
-    else showPassageList();
-    renderFav();
-    updateTtsNote(!state.ttsReady);
+    // Paint the active tab first so buttons stay clickable; defer offscreen work.
+    if (state.tab === "flash") renderFlash();
+    else if (state.tab === "gender") renderGenderList($("genderSearch").value || "");
+    else if (state.tab === "quiz") renderQuiz();
+    else if (state.tab === "read") {
+      if (state.activePassageId) showPassageDetail(state.activePassageId);
+      else showPassageList();
+    } else if (state.tab === "fav") renderFav();
+    else renderFlash();
+
+    setTimeout(function () {
+      try {
+        if (state.tab !== "flash") renderFlash();
+        if (state.tab !== "gender") renderGenderList($("genderSearch").value || "");
+        if (state.tab !== "quiz") renderQuiz();
+        if (state.tab !== "read") {
+          if (state.activePassageId) showPassageDetail(state.activePassageId);
+          else showPassageList();
+        }
+        if (state.tab !== "fav") renderFav();
+        updateTtsNote(!state.ttsReady);
+      } catch (err) {
+        if (window.console && console.error) console.error(err);
+      }
+    }, 0);
   }
 
   // Keep the header (and the tab row under it) clear of the container's
@@ -1351,18 +1401,20 @@
     window.addEventListener("pagehide", safe(onHidden));
 
     // Lets :active press states render on iOS WebKit.
-    document.addEventListener("touchstart", function () {}, { passive: true });
+    // Options object can throw on some WebViews — never let that abort bindEvents.
+    try {
+      document.addEventListener("touchstart", function () {}, { passive: true });
+    } catch (errTouch) {
+      try {
+        document.addEventListener("touchstart", function () {});
+      } catch (errTouch2) {}
+    }
 
-    var tabs = $("tabs");
-    on(tabs, "click", function (e) {
-      var t = e.target;
-      while (t && t !== tabs && !(t.getAttribute && t.getAttribute("data-tab"))) {
-        t = t.parentNode;
-      }
-      if (!t || !t.getAttribute) return;
-      var name = t.getAttribute("data-tab");
-      if (name) switchTab(name);
-    });
+    // Tab clicks are already handled by shell.js (css + __frenchOnTab).
+    // Register the full switchTab implementation for shell to call.
+    window.__frenchOnTab = function (name) {
+      switchTab(name);
+    };
 
     on($("btnPrev"), "click", function () {
       if (!state.daily.length) return;
@@ -1509,49 +1561,69 @@
   }
 
   function init() {
-    detectTts();
-    if (window.speechSynthesis) {
-      try {
-        window.speechSynthesis.onvoiceschanged = function () {
-          if (!state.ttsReady) return;
-          updateTtsNote(false);
-        };
-      } catch (e) {}
-    }
+    try {
+      detectTts();
+      if (window.speechSynthesis && !isAndroidLike()) {
+        try {
+          window.speechSynthesis.onvoiceschanged = function () {
+            if (!state.ttsReady) return;
+            updateTtsNote(false);
+          };
+        } catch (e) {}
+      }
 
-    state.dayKey = todayKey();
-    state.daily = pickDaily(bank, state.dayKey, 5);
-    state.quizOrder = shuffleCopy(bank.slice(), state.dayKey + "|quiz");
-    state.flashIndex = 0;
-    state.quizIndex = 0;
-    state.quizScore = 0;
+      state.dayKey = todayKey();
+      // Daily five is enough for first paint; build full quiz order after paint.
+      state.daily = pickDaily(bank, state.dayKey, 5);
+      state.quizOrder = state.daily.slice();
+      state.flashIndex = 0;
+      state.quizIndex = 0;
+      state.quizScore = 0;
 
-    $("headerSub").textContent =
-      "CLB1–5 · 词库 " +
-      bank.length +
-      " · 名著 " +
-      passages.length +
-      " · " +
-      state.dayKey;
-    var ver = $("appVersion");
-    if (ver) ver.textContent = "v" + APP_VERSION;
+      $("headerSub").textContent =
+        "CLB1–5 · 词库 " +
+        bank.length +
+        " · 名著 " +
+        passages.length +
+        " · " +
+        state.dayKey;
+      var ver = $("appVersion");
+      if (ver) ver.textContent = "v" + APP_VERSION;
 
-    bindEvents();
-    // Render immediately; never gate the first paint on container bridges.
-    renderAll();
-    adjustForContainerChrome();
+      bindEvents();
+      // Unlock shell.js capture gates BEFORE any deferred work.
+      window.__FRENCH_APP_READY = true;
+      // Render immediately; never gate the first paint on container bridges.
+      renderAll();
+      adjustForContainerChrome();
 
-    Promise.all([loadProgress(), loadReactions()]).then(
-      function () {
-        if (!state.interacted) {
-          renderAll();
-        } else {
-          renderFav();
-          if (state.tab === "flash") renderFlash();
+      // Heavy: shuffle full bank for quiz off the first frame.
+      setTimeout(function () {
+        try {
+          if (!bank.length) return;
+          state.quizOrder = shuffleCopy(bank.slice(), state.dayKey + "|quiz");
+          if (state.tab === "quiz") renderQuiz();
+        } catch (errQuiz) {
+          if (window.console && console.error) console.error(errQuiz);
         }
-      },
-      function () {}
-    );
+      }, 0);
+
+      Promise.all([loadProgress(), loadReactions()]).then(
+        function () {
+          if (!state.interacted) {
+            renderAll();
+          } else {
+            renderFav();
+            if (state.tab === "flash") renderFlash();
+          }
+        },
+        function () {}
+      );
+    } catch (errInit) {
+      window.__FRENCH_APP_READY = true;
+      if (window.console && console.error) console.error(errInit);
+      showToast("页面初始化异常，请关闭后重开小工具");
+    }
   }
 
   if (document.readyState === "loading") {
