@@ -32,9 +32,11 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 
 打开 [新建 Issue](https://github.com/pingrunhuang/XHS-french-tool/issues/new/choose)，选择模板：
 
-1. **功能缺陷** — 一般 bug：复现步骤、期望 / 实际、所在页面或功能、iOS 或 Android 小红书、截图
-2. **按钮不可点** — 按钮无响应或点错：按钮文案、页面、点击无反应还是错误动作、是否怀疑遮罩 / z-index、WebView 备注
-3. **功能完整性检查清单** — 逐项标通过 / 不通过 / 未测，并写备注。覆盖每日闪卡、性别速查、造句填空、名著朗读（整段 TTS / 按句 TTS）、点赞、收藏
+1. [功能缺陷](https://github.com/pingrunhuang/XHS-french-tool/issues/new?template=bug-report.yml) — 一般 bug：复现步骤、期望 / 实际、所在页面或功能、iOS 或 Android 小红书、截图
+2. [按钮不可点](https://github.com/pingrunhuang/XHS-french-tool/issues/new?template=button-unclickable.yml) — 按钮无响应或点错：按钮文案、页面、点击无反应还是错误动作、是否怀疑遮罩 / z-index、WebView 备注
+3. [功能完整性检查清单](https://github.com/pingrunhuang/XHS-french-tool/issues/new?template=completeness-checklist.yml) — 逐项标通过 / 不通过 / 未测，并写备注。覆盖每日闪卡、性别速查、造句填空、名著朗读（整段 TTS / 按句 TTS）、点赞、收藏
+
+模板文件在 `.github/ISSUE_TEMPLATE/`：`bug-report.yml`、`button-unclickable.yml`、`completeness-checklist.yml`。英文文件名让新建 Issue 时渲染成表单；选择器里显示的名称是上面三个中文标题。
 
 按钮无响应用「按钮不可点」，其它异常用「功能缺陷」。走查用检查清单；标成不通过的项，再各开一条对应缺陷。
 
