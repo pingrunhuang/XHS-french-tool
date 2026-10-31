@@ -423,10 +423,13 @@
       border: none;
       background: #FFFCF7;
       color: #1F6F6A;
-      padding: 8px 12px;
-      font-size: 13px;
+      padding: 8px 6px;
+      font-size: 12px;
       font-weight: 600;
       cursor: pointer;
+      -webkit-flex: 1;
+      flex: 1;
+      min-width: 0;
     }
     .seg button + button { border-left: 1px solid #B7D9D5; }
     .seg button.is-on {
@@ -493,7 +496,7 @@
   <div class="app">
     <header class="header">
       <h1>法语每日 5 词</h1>
-      <div class="sub" id="headerSub">A1–A2 · 闪卡 · 名著朗读</div>
+      <div class="sub" id="headerSub">CLB1–5 · 闪卡 · 名著朗读</div>
     </header>
     <nav class="tabs" id="tabs" role="tablist">
       <button type="button" class="tab is-active" data-tab="flash" role="tab">每日闪卡</button>
@@ -555,7 +558,7 @@
       <section class="panel" id="panel-fav" role="tabpanel">
         <p class="hint">本地收藏的单词与名著短文（点赞不在此列表，仅收藏）。</p>
         <div id="favContent"></div>
-        <div class="app-version" id="appVersion">v1.0.3</div>
+        <div class="app-version" id="appVersion">v1.0.4</div>
       </section>
     </main>
   </div>

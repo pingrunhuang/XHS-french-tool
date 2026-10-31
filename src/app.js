@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "1.0.3";
+  var APP_VERSION = "1.0.4";
   var STORAGE_MIN_CLIENT_VERSION = 9460;
   var WINDOW_INFO_MIN_CLIENT_VERSION = 9490;
   var BRIDGE_TIMEOUT_MS = 1500;
@@ -27,7 +27,7 @@
     likes: { words: {}, passages: {} },
     favs: { words: {}, passages: {} },
     activePassageId: null,
-    readRate: "normal",
+    readRate: 1,
     interacted: false
   };
 
@@ -132,21 +132,76 @@
     };
   }
 
+  // Stratified daily pick: one word from each CLB 1–5 when possible.
+  // Seeded shuffle within each band so the same dayKey always yields the same five.
+  // Empty bands are filled from the nearest band(s).
   function pickDaily(words, dayKey, count) {
     if (!words.length) return [];
-    var rnd = mulberry32(hashString(dayKey + "|french-daily5"));
-    var idxs = [];
+    var want = typeof count === "number" ? count : 5;
+    var bands = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+    var untagged = [];
     var i;
-    for (i = 0; i < words.length; i++) idxs.push(i);
-    for (i = idxs.length - 1; i > 0; i--) {
-      var j = Math.floor(rnd() * (i + 1));
-      var tmp = idxs[i];
-      idxs[i] = idxs[j];
-      idxs[j] = tmp;
+    for (i = 0; i < words.length; i++) {
+      var w = words[i];
+      var c = w && w.clb;
+      if (c === 1 || c === 2 || c === 3 || c === 4 || c === 5) bands[c].push(w);
+      else untagged.push(w);
     }
-    var n = Math.min(count, idxs.length);
+    // Untagged words are treated as CLB3 (mid) for fallback mix.
+    for (i = 0; i < untagged.length; i++) bands[3].push(untagged[i]);
+
+    function shuffleBand(arr, salt) {
+      return shuffleCopy(arr, dayKey + "|" + salt);
+    }
+
     var out = [];
-    for (i = 0; i < n; i++) out.push(words[idxs[i]]);
+    var used = {};
+    var order = [1, 2, 3, 4, 5];
+    for (i = 0; i < order.length && out.length < want; i++) {
+      var clb = order[i];
+      var shuffled = shuffleBand(bands[clb], "clb" + clb);
+      var picked = null;
+      var k;
+      for (k = 0; k < shuffled.length; k++) {
+        if (!used[shuffled[k].id]) {
+          picked = shuffled[k];
+          break;
+        }
+      }
+      if (!picked) {
+        // nearest bands: clb-1, clb+1, then expand
+        var delta;
+        for (delta = 1; delta <= 4 && !picked; delta++) {
+          var sides = [clb - delta, clb + delta];
+          var s;
+          for (s = 0; s < sides.length && !picked; s++) {
+            var nb = sides[s];
+            if (!bands[nb]) continue;
+            var alt = shuffleBand(bands[nb], "clb" + clb + "-fb" + nb);
+            for (k = 0; k < alt.length; k++) {
+              if (!used[alt[k].id]) {
+                picked = alt[k];
+                break;
+              }
+            }
+          }
+        }
+      }
+      if (picked) {
+        used[picked.id] = true;
+        out.push(picked);
+      }
+    }
+    // If still short (tiny banks), fill from full seeded shuffle.
+    if (out.length < want) {
+      var rest = shuffleBand(words, "fill");
+      for (i = 0; i < rest.length && out.length < want; i++) {
+        if (!used[rest[i].id]) {
+          used[rest[i].id] = true;
+          out.push(rest[i]);
+        }
+      }
+    }
     return out;
   }
 
@@ -450,8 +505,38 @@
     return null;
   }
 
+  var ALLOWED_RATES = [0.25, 0.5, 0.75, 1];
+
+  function normalizeRate(v) {
+    var n = typeof v === "number" ? v : parseFloat(v);
+    if (!isFinite(n)) return 1;
+    var best = 1;
+    var bestDiff = 99;
+    var i;
+    for (i = 0; i < ALLOWED_RATES.length; i++) {
+      var d = Math.abs(ALLOWED_RATES[i] - n);
+      if (d < bestDiff) {
+        bestDiff = d;
+        best = ALLOWED_RATES[i];
+      }
+    }
+    return best;
+  }
+
   function rateValue() {
-    return state.readRate === "slow" ? 0.75 : 1.0;
+    return normalizeRate(state.readRate);
+  }
+
+  function rateLabel(r) {
+    if (r === 0.25) return "0.25×";
+    if (r === 0.5) return "0.5×";
+    if (r === 0.75) return "0.75×";
+    return "1×";
+  }
+
+  function persistReadRate() {
+    // Stored with daily progress so prefs survive reloads; dayKey mismatch still loads rate.
+    saveProgress();
   }
 
   function cancelSpeech() {
@@ -577,14 +662,24 @@
       dayKey: state.dayKey,
       flashIndex: state.flashIndex,
       quizIndex: state.quizIndex,
-      quizScore: state.quizScore
+      quizScore: state.quizScore,
+      readRate: normalizeRate(state.readRate)
     };
     setLocalData(STORAGE_KEY, payload).then(function () {});
   }
 
   function loadProgress() {
     return getLocalData(STORAGE_KEY).then(function (data) {
-      if (!data || data.dayKey !== state.dayKey || state.interacted) return;
+      if (!data) return;
+      // Prefer persisted rate even when the calendar day rolled over.
+      if (data.readRate !== undefined && data.readRate !== null) {
+        state.readRate = normalizeRate(data.readRate);
+      } else if (data.readRate === "slow") {
+        state.readRate = 0.75;
+      } else if (data.readRate === "normal") {
+        state.readRate = 1;
+      }
+      if (data.dayKey !== state.dayKey || state.interacted) return;
       if (typeof data.flashIndex === "number") {
         state.flashIndex = Math.max(0, Math.min(data.flashIndex, state.daily.length - 1));
       }
@@ -1024,16 +1119,20 @@
   }
 
   function setReadRate(rate) {
-    state.readRate = rate === "slow" ? "slow" : "normal";
+    state.readRate = normalizeRate(rate);
+    persistReadRate();
     var seg = $("segRate");
-    if (!seg) return;
-    var btns = seg.querySelectorAll("button");
-    var i;
-    for (i = 0; i < btns.length; i++) {
-      if (btns[i].getAttribute("data-rate") === state.readRate) btns[i].classList.add("is-on");
-      else btns[i].classList.remove("is-on");
+    if (seg) {
+      var btns = seg.querySelectorAll("button");
+      var i;
+      var cur = String(state.readRate);
+      for (i = 0; i < btns.length; i++) {
+        if (btns[i].getAttribute("data-rate") === cur) btns[i].classList.add("is-on");
+        else btns[i].classList.remove("is-on");
+      }
     }
     if (reader.status === "playing") showToast("语速将从下一句生效", 1400);
+    else showToast("语速 " + rateLabel(state.readRate), 1200);
   }
 
   function showPassageDetail(id) {
@@ -1080,16 +1179,20 @@
 
     if (state.ttsReady) {
       html += '<div class="opt-row">';
-      html += '<div class="opt-label">语速</div>';
+      html += '<div class="opt-label">语速（跟读）</div>';
       html += '<div class="seg" id="segRate">';
-      html +=
-        '<button type="button" data-rate="slow"' +
-        (state.readRate === "slow" ? ' class="is-on"' : "") +
-        ">慢速</button>";
-      html +=
-        '<button type="button" data-rate="normal"' +
-        (state.readRate === "normal" ? ' class="is-on"' : "") +
-        ">常速</button>";
+      var ri;
+      for (ri = 0; ri < ALLOWED_RATES.length; ri++) {
+        var rv = ALLOWED_RATES[ri];
+        html +=
+          '<button type="button" data-rate="' +
+          rv +
+          '"' +
+          (normalizeRate(state.readRate) === rv ? ' class="is-on"' : "") +
+          ">" +
+          rateLabel(rv) +
+          "</button>";
+      }
       html += "</div>";
       html += "</div>";
 
@@ -1283,14 +1386,14 @@
         }
         if (t.getAttribute && t.getAttribute("data-speak-word")) {
           var w = state.daily[state.flashIndex];
-          if (w) speakFrench(w.word, { rate: 0.92 });
+          if (w) speakFrench(w.word, { rate: rateValue() });
           return;
         }
         if (t.getAttribute && t.getAttribute("data-speak-ex") != null) {
           var idx = Number(t.getAttribute("data-speak-ex"));
           var cur = state.daily[state.flashIndex];
           if (cur && cur.examples && cur.examples[idx]) {
-            speakFrench(cur.examples[idx].fr, { rate: 0.92 });
+            speakFrench(cur.examples[idx].fr, { rate: rateValue() });
           }
           return;
         }
@@ -1315,7 +1418,7 @@
           var i;
           for (i = 0; i < bank.length; i++) {
             if (bank[i].id === id) {
-              speakFrench(bank[i].word, { rate: 0.92 });
+              speakFrench(bank[i].word, { rate: rateValue() });
               break;
             }
           }
@@ -1334,7 +1437,7 @@
     });
     on($("btnQuizSpeak"), "click", function () {
       var w = currentQuizWord();
-      if (w && w.cloze && w.cloze.full) speakFrench(w.cloze.full, { rate: 0.92 });
+      if (w && w.cloze && w.cloze.full) speakFrench(w.cloze.full, { rate: rateValue() });
     });
     on($("quizInput"), "keydown", function (e) {
       if (e.key === "Enter" || e.keyCode === 13) {
@@ -1391,7 +1494,7 @@
         }
         if (t.getAttribute && t.getAttribute("data-fav-speak-word")) {
           var ww = findWord(t.getAttribute("data-fav-speak-word"));
-          if (ww) speakFrench(ww.word, { rate: 0.92 });
+          if (ww) speakFrench(ww.word, { rate: rateValue() });
           return;
         }
         if (t.getAttribute && t.getAttribute("data-fav-open-passage")) {
@@ -1424,7 +1527,7 @@
     state.quizScore = 0;
 
     $("headerSub").textContent =
-      "A1–A2 · 词库 " +
+      "CLB1–5 · 词库 " +
       bank.length +
       " · 名著 " +
       passages.length +
