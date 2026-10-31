@@ -11,7 +11,7 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 - **每日闪卡**：每天五个词的闪卡
 - **性别速查**：名词阴阳性快速查询
 - **造句填空**：句子填空练习
-- **名著朗读**：经典课文朗读，支持整段 TTS 与按句 TTS
+- **名著短文 / 名著朗读**：经典短文法中对照；仅 iOS 提供整段 TTS（暂停 / 继续 / 四档语速）
 - **点赞、收藏**：状态写在本机 localStorage
 
 当前小红书 redapp 提审信息：
@@ -24,10 +24,22 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 
 - `src/`：源码
 - `dist/`：与 `src` 相同的打包输入
-- `french-daily-5.zip`：v1.0.4 待上传包，md5 `e117984bcb3c7ccb73dc56aedeebced1`
+- `french-daily-5.zip`：v1.0.8 待上传包，md5 `e0f2085256257b90ff0e2ec89d1d94be`，63671 bytes
 - `assets/`：`icon.jpg`、`cover.jpg`
 
 ## 版本记录
+
+### v1.0.8（修复 1.0.4–1.0.7 连续驳回：「小工具功能缺陷，可能是页面按钮无法点击」）
+
+- 根因（有实测证据）：朗读类控件（朗读单词 / 例句 / 整句 / 性别速查朗读 / 收藏页朗读、四档语速、开始朗读 / 停止）只要 `speechSynthesis` 对象存在就显示。在官方 redapp 模拟器（创服平台同款工作台，桌面 Chrome 内核）里，这个 API 存在，但 `speak()` 直接返回 `synthesis-failed`（0 个语音）。所以每个朗读按钮点了都只弹「朗读失败」，语速按钮也只是改了一个用不上的值。1.0.4 起新增四档语速，并把它写进版本说明，审核点的正是这一块。另外「停止」按钮在没开始朗读时是 `disabled`，「检查」在作答后也是 `disabled`，点了完全没有反应。
+- 被否定的假设：600 词 words.js 同步加载会卡住点击。实测在 6 倍 CPU 降速下，1.0.3、1.0.4、1.0.7 的 load 都在 120–140ms 左右，没有差别。1.0.5–1.0.7 的异步 / seed / shell 方案因此撤回。
+- 朗读只在 iOS（iPhone / iPad）上开启，用正向检测，回到 1.0.3 设计的「朗读仅 iOS」。安卓、桌面和模拟器默认不渲染任何朗读或语速控件，tab 显示「名著短文」。
+- 第一次真实朗读失败（非 interrupted / canceled）时，立即隐藏全部朗读控件，并提示「当前环境无法朗读，已切换为对照音标跟读」。
+- 不再渲染 disabled 按钮：「停止」在未朗读时点击会提示「还没有开始朗读」；「检查」在空输入时提示先填答案，作答后再点提示「本题已作答，点「下一题」继续」。
+- 加载方式回到 1.0.3 / 1.0.4：`words.js → passages.js → app.js` 同步顺序加载。删掉 `shell.js`、`seed.js`、`load-words.js` 和启动横幅，首屏直接显示 600 词，不会再从种子词跳成正式词。
+- 静态默认值改成 TTS 关闭：tab「名著短文」、`btnQuizSpeak` 默认 hidden，iOS 上再由 JS 开启。
+- 测试：`tools/qa/functest.mjs`（真 Chrome、容器 CSP、触摸 tap，覆盖 Android 无 TTS / 桌面模拟器 / iOS 正常 TTS / iOS TTS 失败四种环境，82/82 PASS），`tools/qa/clickall.mjs`（逐个点击所有可见控件并做命中测试），`tools/qa/sim*.mjs`（在 `redapp dev` 模拟器里点击）。
+- 收藏页底部显示 v1.0.8。
 
 ### v1.0.4（扩词库 CLB 1–5 + 朗读四档语速）
 
