@@ -24,10 +24,54 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 
 - `src/`：源码
 - `dist/`：与 `src` 相同的打包输入
-- `french-daily-5.zip`：v1.0.2 待上传包，md5 `5e6c5a1b1bd48c0cbf28e8d4897419b7`
+- `french-daily-5.zip`：v1.0.4 待上传包，md5 `e117984bcb3c7ccb73dc56aedeebced1`
 - `assets/`：`icon.jpg`、`cover.jpg`
 
 ## 版本记录
+
+### v1.0.4（扩词库 CLB 1–5 + 朗读四档语速）
+
+对应 issue #5。
+
+#### 词库（CLB 1–CLB 5）
+
+- 总词量：**600**
+- 分层：CLB1=120 · CLB2=120 · CLB3=120 · CLB4=120 · CLB5=120
+- 词性：名词 457 · 动词 90 · 形容词 53
+- 保留原有 52 个词条并补上 `clb` 字段；新增词均为高频日常 / 移民学习相关
+- 每个词保留字段：`id/word/pos/gender/article/zh/ipa/genderTip/examples/cloze`，并新增 **`clb`（1–5）**
+- 例句默认 2 条，控制包体（words.js ≈ 275 KiB）
+
+#### 每日抽词策略（分层混抽）
+
+给定 `dayKey`（本地日历日）：
+
+1. 按 `clb` 分成 1–5 五个词池
+2. 每个词池用 `dayKey` 做种子洗牌，各取 **1** 个未重复词
+3. 若某档为空，则从最近档（±1、±2…）补足
+4. 同一天打开结果稳定；换日换一组
+
+性别速查仍只列出名词（`pos==="n"`），默认显示前 30 个，搜索可筛全库。填空 / 点赞收藏跟随新词库。
+
+#### 朗读语速（仅 TTS 可用设备）
+
+- 四档：**0.25× / 0.5× / 0.75× / 1×**（便于跟读）
+- 仅在 `speechSynthesis` + 法语语音可用时显示（与现有「朗读」控件同条件；安卓继续隐藏全部朗读相关控件）
+- 写入 `SpeechSynthesisUtterance.rate`；整段朗读按句生效，播放中改速从下一句起
+- 用户上次选择的语速写入本地进度存储，跨天保留；默认 1.0
+
+#### 版本与产物
+
+- 版本号：收藏页页脚 **v1.0.4**
+- zip：`french-daily-5.zip`
+- md5：`e117984bcb3c7ccb73dc56aedeebced1`
+- 体积：99475 bytes（约 97.1 KiB）
+- 审计：`write_manifest` + `audit_artifact`（Node/Python）对 `dist/` 与最终 zip 均为 **PASS**
+- 名著朗读 / passages **未改**（本版只扩词库 + 语速）
+
+#### 验证提醒
+
+请将 zip 上传创服平台：先在平台模拟器完整点验，再分别用 Android / iOS 真机扫码验证。浏览器直跑不可作为验收依据。
 
 ### v1.0.3（名著朗读：整段朗读暂停 / 继续 + 当前句高亮放大，仅 iOS）
 
@@ -59,7 +103,7 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 - 用功能完整性检查清单核对每个页面和关键操作
 - 优先看按钮点了没反应、点错、或被遮罩挡住的问题
 
-源码、打包输入和 v1.0.2 待上传包已在本仓库，见「源码结构」。
+源码、打包输入和 v1.0.4 待上传包已在本仓库，见「源码结构」。
 
 ## 怎么提 Bug
 
