@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var APP_VERSION = "1.0.4";
+  var APP_VERSION = "1.0.7";
   var STORAGE_MIN_CLIENT_VERSION = 9460;
   var WINDOW_INFO_MIN_CLIENT_VERSION = 9490;
   var BRIDGE_TIMEOUT_MS = 1500;
@@ -9,9 +9,12 @@
   var LIKES_KEY = "french_daily5_likes_v1";
   var FAVS_KEY = "french_daily5_favs_v1";
 
-  var bank = (window.FRENCH_WORD_BANK && window.FRENCH_WORD_BANK.words) || [];
+  // Boot with FRENCH_WORD_SEED (tiny, sync) so flash/quiz work on first paint.
+  // Full FRENCH_WORD_BANK arrives later via load-words.js (no <script async>).
+  var bank = [];
   var passages =
     (window.FRENCH_PASSAGES && window.FRENCH_PASSAGES.passages) || [];
+  var wordsApplied = false;
 
   var state = {
     tab: "flash",
@@ -445,11 +448,29 @@
     );
   }
 
-  // Speech is a progressive enhancement: Android System WebView does not
-  // expose the Web Speech API, so every speak control is hidden there instead
-  // of rendering buttons that do nothing.
+  // XHS Android WebView often stubs or breaks speechSynthesis. Treat Android
+  // as TTS-off so rate/speak controls never cover or confuse the real UI.
+  function isAndroidLike() {
+    try {
+      var ua = (navigator && navigator.userAgent) || "";
+      if (/Android/i.test(ua) && !/iPhone|iPad|iPod/i.test(ua)) return true;
+      // Some containers omit "Android" but set platform
+      if (
+        navigator.platform &&
+        /Linux/i.test(navigator.platform) &&
+        /Mobile/i.test(ua) &&
+        !/iPhone|iPad|iPod/i.test(ua)
+      ) {
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  // Speech is a progressive enhancement: hide every speak control on Android
+  // (and when the API is missing) instead of rendering buttons that do nothing.
   function detectTts() {
-    if (!hasTtsApi()) {
+    if (isAndroidLike() || !hasTtsApi()) {
       state.ttsReady = false;
       state.ttsNote = TTS_OFF_NOTE;
       return;
@@ -469,7 +490,20 @@
 
   function applyTtsVisibility() {
     var quizSpeak = $("btnQuizSpeak");
-    if (quizSpeak) quizSpeak.style.display = state.ttsReady ? "" : "none";
+    if (quizSpeak) {
+      if (state.ttsReady) {
+        quizSpeak.style.display = "";
+        quizSpeak.style.pointerEvents = "";
+        quizSpeak.removeAttribute("hidden");
+        quizSpeak.disabled = false;
+      } else {
+        // display:none + hidden + no pointer events: never intercept taps on Android
+        quizSpeak.style.display = "none";
+        quizSpeak.style.pointerEvents = "none";
+        quizSpeak.setAttribute("hidden", "hidden");
+        quizSpeak.disabled = true;
+      }
+    }
     var readTab = document.querySelector('.tab[data-tab="read"]');
     if (readTab) readTab.textContent = state.ttsReady ? "名著朗读" : "名著短文";
     var readHint = $("readHint");
@@ -718,12 +752,13 @@
       if (panels[i] === name) p.classList.add("is-active");
       else p.classList.remove("is-active");
     }
-    if (name === "read") {
+    if (name === "flash") renderFlash();
+    else if (name === "gender") renderGenderList(($("genderSearch") && $("genderSearch").value) || "");
+    else if (name === "quiz") renderQuiz();
+    else if (name === "read") {
       if (state.activePassageId) showPassageDetail(state.activePassageId);
       else showPassageList();
-    }
-    if (name === "fav") renderFav();
-    if (name === "flash") renderFlash();
+    } else if (name === "fav") renderFav();
   }
 
   function renderFlash() {
@@ -1292,13 +1327,31 @@
 
   function renderAll() {
     applyTtsVisibility();
-    renderFlash();
-    renderGenderList($("genderSearch").value || "");
-    renderQuiz();
-    if (state.activePassageId) showPassageDetail(state.activePassageId);
-    else showPassageList();
-    renderFav();
-    updateTtsNote(!state.ttsReady);
+    // Paint the active tab first so buttons stay clickable; defer offscreen work.
+    if (state.tab === "flash") renderFlash();
+    else if (state.tab === "gender") renderGenderList($("genderSearch").value || "");
+    else if (state.tab === "quiz") renderQuiz();
+    else if (state.tab === "read") {
+      if (state.activePassageId) showPassageDetail(state.activePassageId);
+      else showPassageList();
+    } else if (state.tab === "fav") renderFav();
+    else renderFlash();
+
+    setTimeout(function () {
+      try {
+        if (state.tab !== "flash") renderFlash();
+        if (state.tab !== "gender") renderGenderList($("genderSearch").value || "");
+        if (state.tab !== "quiz") renderQuiz();
+        if (state.tab !== "read") {
+          if (state.activePassageId) showPassageDetail(state.activePassageId);
+          else showPassageList();
+        }
+        if (state.tab !== "fav") renderFav();
+        updateTtsNote(!state.ttsReady);
+      } catch (err) {
+        if (window.console && console.error) console.error(err);
+      }
+    }, 0);
   }
 
   // Keep the header (and the tab row under it) clear of the container's
@@ -1351,27 +1404,35 @@
     window.addEventListener("pagehide", safe(onHidden));
 
     // Lets :active press states render on iOS WebKit.
-    document.addEventListener("touchstart", function () {}, { passive: true });
+    // Options object can throw on some WebViews — never let that abort bindEvents.
+    try {
+      document.addEventListener("touchstart", function () {}, { passive: true });
+    } catch (errTouch) {
+      try {
+        document.addEventListener("touchstart", function () {});
+      } catch (errTouch2) {}
+    }
 
-    var tabs = $("tabs");
-    on(tabs, "click", function (e) {
-      var t = e.target;
-      while (t && t !== tabs && !(t.getAttribute && t.getAttribute("data-tab"))) {
-        t = t.parentNode;
-      }
-      if (!t || !t.getAttribute) return;
-      var name = t.getAttribute("data-tab");
-      if (name) switchTab(name);
-    });
+    // Tab clicks are already handled by shell.js (css + __frenchOnTab).
+    // Register the full switchTab implementation for shell to call.
+    window.__frenchOnTab = function (name) {
+      switchTab(name);
+    };
 
     on($("btnPrev"), "click", function () {
-      if (!state.daily.length) return;
+      if (!bank.length || !state.daily.length) {
+        showToast("词库加载中，请稍候再点…");
+        return;
+      }
       state.flashIndex = (state.flashIndex - 1 + state.daily.length) % state.daily.length;
       saveProgress();
       renderFlash();
     });
     on($("btnNext"), "click", function () {
-      if (!state.daily.length) return;
+      if (!bank.length || !state.daily.length) {
+        showToast("词库加载中，请稍候再点…");
+        return;
+      }
       state.flashIndex = (state.flashIndex + 1) % state.daily.length;
       saveProgress();
       renderFlash();
@@ -1508,55 +1569,219 @@
     });
   }
 
-  function init() {
-    detectTts();
-    if (window.speechSynthesis) {
-      try {
-        window.speechSynthesis.onvoiceschanged = function () {
-          if (!state.ttsReady) return;
-          updateTtsNote(false);
-        };
-      } catch (e) {}
+  function hideBootBanner() {
+    var b = $("bootBanner");
+    if (b) {
+      b.className = "boot-banner is-hide";
+      b.style.display = "none";
     }
+  }
 
-    state.dayKey = todayKey();
-    state.daily = pickDaily(bank, state.dayKey, 5);
-    state.quizOrder = shuffleCopy(bank.slice(), state.dayKey + "|quiz");
-    state.flashIndex = 0;
-    state.quizIndex = 0;
-    state.quizScore = 0;
+  function showBootBanner(msg) {
+    var b = $("bootBanner");
+    if (!b) return;
+    if (msg) b.textContent = msg;
+    b.className = "boot-banner";
+    b.style.display = "";
+  }
 
-    $("headerSub").textContent =
+  function seedWords() {
+    var raw = window.FRENCH_WORD_SEED && window.FRENCH_WORD_SEED.words;
+    return raw || [];
+  }
+
+  function fullBankWords() {
+    var raw = window.FRENCH_WORD_BANK && window.FRENCH_WORD_BANK.words;
+    return raw || [];
+  }
+
+  function updateHeaderSub() {
+    var sub = $("headerSub");
+    if (!sub) return;
+    sub.textContent =
       "CLB1–5 · 词库 " +
       bank.length +
       " · 名著 " +
       passages.length +
       " · " +
       state.dayKey;
-    var ver = $("appVersion");
-    if (ver) ver.textContent = "v" + APP_VERSION;
-
-    bindEvents();
-    // Render immediately; never gate the first paint on container bridges.
-    renderAll();
-    adjustForContainerChrome();
-
-    Promise.all([loadProgress(), loadReactions()]).then(
-      function () {
-        if (!state.interacted) {
-          renderAll();
-        } else {
-          renderFav();
-          if (state.tab === "flash") renderFlash();
-        }
-      },
-      function () {}
-    );
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
+  function applyBankSource(words, opts) {
+    opts = opts || {};
+    if (!words || !words.length) return false;
+    var upgrading = !!opts.upgrading;
+    var keepDaily = !!opts.keepDaily && state.daily && state.daily.length;
+    bank = words;
+    state.dayKey = state.dayKey || todayKey();
+    if (!keepDaily) {
+      state.daily = pickDaily(bank, state.dayKey, 5);
+      state.quizOrder = state.daily.slice();
+      state.flashIndex = 0;
+      state.quizIndex = 0;
+      state.quizScore = 0;
+      state.quizAnswered = false;
+    }
+    updateHeaderSub();
+    wordsApplied = true;
+    window.__FRENCH_WORDS_READY = true;
+    if (upgrading && bank.length >= 100) {
+      hideBootBanner();
+    } else if (bank.length >= 100) {
+      hideBootBanner();
+    } else {
+      showBootBanner("正在扩展完整词库（闪卡 / 填空已可点）…");
+    }
+    renderAll();
+    setTimeout(function () {
+      try {
+        if (!bank.length) return;
+        // Full-bank quiz shuffle when we have the 600; seed keeps daily order.
+        if (bank.length >= 100) {
+          state.quizOrder = shuffleCopy(bank.slice(), state.dayKey + "|quiz");
+          if (state.tab === "quiz") renderQuiz();
+        }
+      } catch (errQuiz) {
+        if (window.console && console.error) console.error(errQuiz);
+      }
+    }, 0);
+    return true;
+  }
+
+  function applyWordBank() {
+    try {
+      var full = fullBankWords();
+      if (full.length) {
+        // Prefer full bank. Keep today's cards if the user already tapped.
+        applyBankSource(full, {
+          upgrading: true,
+          keepDaily: !!state.interacted && state.daily && state.daily.length
+        });
+        Promise.all([loadProgress(), loadReactions()]).then(
+          function () {
+            if (!state.interacted) {
+              renderAll();
+            } else {
+              renderFav();
+              if (state.tab === "flash") renderFlash();
+            }
+          },
+          function () {}
+        );
+        return;
+      }
+      var seed = seedWords();
+      if (seed.length) {
+        applyBankSource(seed, { upgrading: false, keepDaily: false });
+        return;
+      }
+      showBootBanner("词库仍在加载…");
+      showToast("词库加载中，请稍候");
+    } catch (errApply) {
+      window.__FRENCH_WORDS_READY = true;
+      hideBootBanner();
+      if (window.console && console.error) console.error(errApply);
+      showToast("词库应用异常，请关闭后重开小工具");
+    }
+  }
+
+  function bootstrap() {
+    try {
+      detectTts();
+      if (window.speechSynthesis && !isAndroidLike()) {
+        try {
+          window.speechSynthesis.onvoiceschanged = function () {
+            if (!state.ttsReady) return;
+            updateTtsNote(false);
+          };
+        } catch (e) {}
+      }
+
+      state.dayKey = todayKey();
+      var ver = $("appVersion");
+      if (ver) ver.textContent = "v" + APP_VERSION;
+      var sub = $("headerSub");
+      if (sub) {
+        sub.textContent =
+          "CLB1–5 · 启动中 · 名著 " + passages.length + " · " + state.dayKey;
+      }
+
+      bindEvents();
+      applyTtsVisibility();
+      window.__FRENCH_APP_READY = true;
+      window.__FRENCH_WORDS_READY = false;
+
+      // Passages (sync, small) can render list without the word bank.
+      try {
+        showPassageList();
+      } catch (ePass) {}
+      try {
+        adjustForContainerChrome();
+      } catch (eChrome) {}
+
+      // Prefer full bank if already present; otherwise seed for instant UI.
+      if (fullBankWords().length) {
+        applyWordBank();
+      } else if (seedWords().length) {
+        applyWordBank();
+        // Persist after seed paint; full bank may upgrade shortly.
+        Promise.all([loadProgress(), loadReactions()]).then(
+          function () {
+            if (!state.interacted) renderAll();
+            else {
+              renderFav();
+              if (state.tab === "flash") renderFlash();
+            }
+          },
+          function () {}
+        );
+      } else {
+        showBootBanner("词库加载中…");
+      }
+    } catch (errBoot) {
+      window.__FRENCH_APP_READY = true;
+      if (window.console && console.error) console.error(errBoot);
+      showToast("页面初始化异常，请关闭后重开小工具");
+    }
+  }
+
+  // Called from words.js when the full bank finishes parsing.
+  window.__frenchOnWordsReady = function () {
+    applyWordBank();
+  };
+
+  // Safety net if deferred inject races on a quirky WebView.
+  (function pollWords() {
+    var tries = 0;
+    function tick() {
+      if (
+        window.FRENCH_WORD_BANK &&
+        window.FRENCH_WORD_BANK.words &&
+        window.FRENCH_WORD_BANK.words.length >= 100
+      ) {
+        applyWordBank();
+        return;
+      }
+      tries += 1;
+      // Soft timeout: seed UI already works; only nag if seed missing too.
+      if (tries < 200) setTimeout(tick, 50);
+      else if (!wordsApplied) {
+        showBootBanner("完整词库加载超时（种子词仍可用）");
+      }
+    }
+    setTimeout(tick, 0);
+  })();
+
+  // Bind immediately — this file runs after shell.js at end of body.
+  try {
+    bootstrap();
+  } catch (errImmediate) {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function () {
+        try { bootstrap(); } catch (e2) {}
+      });
+    } else {
+      if (window.console && console.error) console.error(errImmediate);
+    }
   }
 })();
