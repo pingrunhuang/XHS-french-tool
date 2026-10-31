@@ -1,0 +1,81 @@
+name: 功能缺陷
+description: 功能异常、显示错误、数据不对。按钮完全点不了请改用「按钮不可点」。
+title: "[缺陷] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        按实际操作填写。按钮点按无反应、或点了没有执行对应动作时，请改用模板「按钮不可点」。
+        当前提审版本 v1.0.1，appId `6ae582e08eb4360015cc7e86`（审核中）。
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 所在页面 / 功能
+      description: 出问题的 Tab 或操作。
+      options:
+        - 每日闪卡
+        - 性别速查
+        - 造句填空
+        - 名著朗读
+        - 点赞
+        - 收藏
+        - 跨页面 / 导航
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: 设备
+      options:
+        - iOS 小红书
+        - Android 小红书
+        - iOS 与 Android 都能复现
+        - 其它 WebView / 浏览器
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本与机型
+      description: 小工具版本、小红书版本、系统版本。
+      placeholder: 例：v1.0.1，小红书 x.x，iPhone 15 / iOS 18
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      description: 从打开小工具开始，逐步写到问题出现。
+      placeholder: |
+        1. 在小红书打开「法语每日五词」
+        2. 进入某个页面
+        3. 点击某个按钮
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果
+      placeholder: 例：点击后切到下一个词
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: 实际结果
+      placeholder: 例：页面停在原词，没有提示
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: 截图或录屏
+      description: 把截图或短录屏拖进这个框。能看出点的是哪个按钮、点完停在哪。
+      placeholder: 将图片拖到这里

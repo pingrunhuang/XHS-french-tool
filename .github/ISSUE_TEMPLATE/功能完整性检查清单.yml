@@ -1,0 +1,245 @@
+name: 功能完整性检查清单
+description: 走查每日闪卡、性别速查、造句填空、名著朗读、点赞与收藏。每项标通过 / 不通过 / 未测。
+title: "[检查清单] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        按页面走查一轮。每一块先选结论（通过 / 不通过 / 未测），再只勾选已经确认通过的交互，备注里写失败现象。
+        发现按钮不可点时，另开一条「按钮不可点」。其它功能异常另开「功能缺陷」。
+        当前提审版本 v1.0.1，appId `6ae582e08eb4360015cc7e86`（审核中）。
+        标签 `checklist` 建好后请补上。
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: 设备
+      options:
+        - iOS 小红书
+        - Android 小红书
+        - iOS 与 Android 都测过
+        - 其它 WebView / 浏览器
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: 版本与机型
+      placeholder: 例：v1.0.1，小红书 x.x，Android 14
+
+  - type: dropdown
+    id: round
+    attributes:
+      label: 本轮结论
+      options:
+        - 未测完
+        - 全部通过
+        - 有不通过项
+    validations:
+      required: true
+
+  - type: dropdown
+    id: flashcards
+    attributes:
+      label: 每日闪卡
+      description: 进入页面、词卡可见、翻面或下一词、本页按钮可点。
+      options:
+        - 未测
+        - 通过
+        - 不通过
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: flashcards_checks
+    attributes:
+      label: 每日闪卡 · 已通过的交互
+      description: 只勾选已经确认通过的项。
+      options:
+        - label: 能进入「每日闪卡」
+        - label: 词卡内容可见
+        - label: 翻面或切换下一词有响应
+        - label: 本页按钮点击有反馈
+
+  - type: textarea
+    id: flashcards_notes
+    attributes:
+      label: 每日闪卡 · 备注
+      description: 不通过时写清按钮文案，以及点下去之后发生了什么。
+      placeholder: 例：「下一个」点按无反应
+
+  - type: dropdown
+    id: gender
+    attributes:
+      label: 性别速查
+      description: 进入页面、能看到或查到阴阳性、本页按钮可点。
+      options:
+        - 未测
+        - 通过
+        - 不通过
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: gender_checks
+    attributes:
+      label: 性别速查 · 已通过的交互
+      description: 只勾选已经确认通过的项。
+      options:
+        - label: 能进入「性别速查」
+        - label: 能看到或查到名词阴阳性
+        - label: 本页按钮点击有反馈
+
+  - type: textarea
+    id: gender_notes
+    attributes:
+      label: 性别速查 · 备注
+      placeholder: 例：查询按钮点了没有结果
+
+  - type: dropdown
+    id: cloze
+    attributes:
+      label: 造句填空
+      description: 进入页面、句子和空位可见、能填写并提交或核对、按钮可点。
+      options:
+        - 未测
+        - 通过
+        - 不通过
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: cloze_checks
+    attributes:
+      label: 造句填空 · 已通过的交互
+      description: 只勾选已经确认通过的项。
+      options:
+        - label: 能进入「造句填空」
+        - label: 句子和填空位置可见
+        - label: 能输入并提交或核对
+        - label: 本页按钮点击有反馈
+
+  - type: textarea
+    id: cloze_notes
+    attributes:
+      label: 造句填空 · 备注
+      placeholder: 例：提交后没有对错反馈
+
+  - type: dropdown
+    id: reading_full
+    attributes:
+      label: 名著朗读 · 整段 TTS
+      description: 进入朗读页，整段播放能开始，播放控制按钮可点。
+      options:
+        - 未测
+        - 通过
+        - 不通过
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: reading_full_checks
+    attributes:
+      label: 名著朗读 · 整段 TTS 已通过的交互
+      description: 只勾选已经确认通过的项。
+      options:
+        - label: 能进入「名著朗读」
+        - label: 整段 TTS 能开始播放
+        - label: 整段播放相关按钮点击有反馈
+
+  - type: textarea
+    id: reading_full_notes
+    attributes:
+      label: 名著朗读 · 整段 TTS 备注
+      placeholder: 例：点「整段播放」无声音也无状态变化
+
+  - type: dropdown
+    id: reading_sentence
+    attributes:
+      label: 名著朗读 · 按句 TTS
+      description: 按句播放能出声，切句按钮可点。
+      options:
+        - 未测
+        - 通过
+        - 不通过
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: reading_sentence_checks
+    attributes:
+      label: 名著朗读 · 按句 TTS 已通过的交互
+      description: 只勾选已经确认通过的项。
+      options:
+        - label: 按句 TTS 能播放当前句
+        - label: 切换句子的按钮点击有反馈
+
+  - type: textarea
+    id: reading_sentence_notes
+    attributes:
+      label: 名著朗读 · 按句 TTS 备注
+      placeholder: 例：按句播放只出第一句，下一句按钮无反应
+
+  - type: dropdown
+    id: like
+    attributes:
+      label: 点赞
+      description: 按钮可点、状态有变化、刷新或重进后 localStorage 仍保留。
+      options:
+        - 未测
+        - 通过
+        - 不通过
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: like_checks
+    attributes:
+      label: 点赞 · 已通过的交互
+      description: 只勾选已经确认通过的项。
+      options:
+        - label: 点赞按钮可点击
+        - label: 点赞状态有可见变化
+        - label: 刷新或重进后状态仍在（localStorage）
+
+  - type: textarea
+    id: like_notes
+    attributes:
+      label: 点赞 · 备注
+      placeholder: 例：心形能点亮，关掉小工具再进就没了
+
+  - type: dropdown
+    id: favorite
+    attributes:
+      label: 收藏
+      description: 按钮可点、状态有变化、刷新或重进后 localStorage 仍保留。
+      options:
+        - 未测
+        - 通过
+        - 不通过
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: favorite_checks
+    attributes:
+      label: 收藏 · 已通过的交互
+      description: 只勾选已经确认通过的项。
+      options:
+        - label: 收藏按钮可点击
+        - label: 收藏状态有可见变化
+        - label: 刷新或重进后状态仍在（localStorage）
+
+  - type: textarea
+    id: favorite_notes
+    attributes:
+      label: 收藏 · 备注
+      placeholder: 例：收藏按钮点按无反应
+
+  - type: textarea
+    id: other
+    attributes:
+      label: 本轮其它说明
+      description: 没覆盖到的路径、只在某一端出现的问题、建议另开的 Issue。
+      placeholder: 例：Android 上整段 TTS 不通过，将另开按钮 Issue

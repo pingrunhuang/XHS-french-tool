@@ -1,0 +1,110 @@
+name: 按钮不可点
+description: 页面按钮点了没反应，或点下去触发了别的动作。含遮罩 / z-index 怀疑。
+title: "[按钮不可点] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        专用于「页面按钮无法点击」：点按无反应、要点很多次才生效，或点下去走了别的动作。
+        若怀疑透明遮罩、固定层或 z-index 挡住点击，请在下面标明。
+        当前提审版本 v1.0.1，appId `6ae582e08eb4360015cc7e86`（审核中）。
+        标签 `button` 建好后请补上；信息不够时再加 `needs-repro`。
+
+  - type: input
+    id: button_label
+    attributes:
+      label: 哪个按钮
+      description: 按钮上的文字、图标含义，或旁边的词。
+      placeholder: 例：「下一个」、收藏心形、整段播放
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: 所在页面 / Tab
+      options:
+        - 每日闪卡
+        - 性别速查
+        - 造句填空
+        - 名著朗读
+        - 点赞
+        - 收藏
+        - 跨页面 / 导航
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: symptom
+    attributes:
+      label: 点击表现
+      options:
+        - 点击完全无反应
+        - 有按下的样子，但功能没执行
+        - 触发了错误动作
+        - 要点很多次才偶尔生效
+        - 其他
+    validations:
+      required: true
+
+  - type: dropdown
+    id: overlay
+    attributes:
+      label: 遮罩 / 层叠（z-index）
+      description: 透明层、弹窗残留、顶部或底部固定条挡住按钮时，点下去会没有反应。
+      options:
+        - 不确定
+        - 怀疑有透明遮罩或上层元素挡住
+        - 点了有错误动作，不太像遮罩
+        - 已排除遮罩问题
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device
+    attributes:
+      label: 设备
+      options:
+        - iOS 小红书
+        - Android 小红书
+        - iOS 与 Android 都能复现
+        - 其它 WebView / 浏览器
+    validations:
+      required: true
+
+  - type: textarea
+    id: webview
+    attributes:
+      label: 浏览器 / WebView 备注
+      description: 小红书内置 WebView、系统版本、是否只在 App 内出现、系统浏览器打开同一 H5 是否正常。
+      placeholder: |
+        例：iOS 18 小红书内可复现；Safari 打开同一页面时按钮正常
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 打开小工具并进入该页
+        2. 点「某个按钮」一次
+        3. 页面没有任何变化
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望
+      description: 这个按钮点下去应该发生什么。
+      placeholder: 例：开始整段朗读
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: 截图或录屏
+      description: 拖进图片或短录屏，标出点不到的按钮。若有开发者工具，可补充该按钮的叠层关系。
+      placeholder: 将图片拖到这里
