@@ -1,0 +1,1946 @@
+{
+  "version": 1,
+  "level": "A1-A2",
+  "words": [
+    {
+      "id": "chat",
+      "word": "chat",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "猫",
+      "ipa": "/ʃa/",
+      "genderTip": "阳性动物常用 le；阴性是 chatte。",
+      "examples": [
+        {
+          "fr": "Le chat dort sur le canapé.",
+          "zh": "猫在沙发上睡觉。",
+          "tip": "阳性单数 → le"
+        },
+        {
+          "fr": "J'ai deux chats noirs.",
+          "zh": "我有两只黑猫。",
+          "tip": "复数 → des / les chats"
+        },
+        {
+          "fr": "La chatte miaule.",
+          "zh": "母猫在叫。",
+          "tip": "阴性形式 chatte"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ chat est très mignon.",
+        "answer": "Le",
+        "answers": [
+          "Le",
+          "le"
+        ],
+        "full": "Le chat est très mignon.",
+        "zh": "这只猫很可爱。"
+      }
+    },
+    {
+      "id": "maison",
+      "word": "maison",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "房子",
+      "ipa": "/mɛ.zɔ̃/",
+      "genderTip": "以 -aison 结尾的名词多为阴性。",
+      "examples": [
+        {
+          "fr": "La maison est grande.",
+          "zh": "这所房子很大。",
+          "tip": "阴性 → la"
+        },
+        {
+          "fr": "Nous rentrons à la maison.",
+          "zh": "我们回家。",
+          "tip": "固定搭配 à la maison"
+        },
+        {
+          "fr": "Les maisons du village sont anciennes.",
+          "zh": "村里的房子很古老。",
+          "tip": "复数 les maisons"
+        }
+      ],
+      "cloze": {
+        "prompt": "Elle habite dans ___ maison bleue.",
+        "answer": "une",
+        "answers": [
+          "une",
+          "Une"
+        ],
+        "full": "Elle habite dans une maison bleue.",
+        "zh": "她住在一栋蓝色的房子里。"
+      }
+    },
+    {
+      "id": "livre",
+      "word": "livre",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "书",
+      "ipa": "/livʁ/",
+      "genderTip": "livre「书」为阳性。",
+      "examples": [
+        {
+          "fr": "Je lis un livre intéressant.",
+          "zh": "我在读一本有趣的书。",
+          "tip": "阳性 → un/le livre"
+        },
+        {
+          "fr": "Ce livre appartient à Marie.",
+          "zh": "这本书属于玛丽。",
+          "tip": "指示代词 ce + 阳性"
+        },
+        {
+          "fr": "Où sont mes livres ?",
+          "zh": "我的书在哪儿？",
+          "tip": "复数 mes livres"
+        }
+      ],
+      "cloze": {
+        "prompt": "Il lit ___ livre chaque soir.",
+        "answer": "un",
+        "answers": [
+          "un",
+          "Un"
+        ],
+        "full": "Il lit un livre chaque soir.",
+        "zh": "他每天晚上读一本书。"
+      }
+    },
+    {
+      "id": "eau",
+      "word": "eau",
+      "pos": "n",
+      "gender": "f",
+      "article": "l'",
+      "zh": "水",
+      "ipa": "/o/",
+      "genderTip": "元音开头用 l'，名词本身仍是阴性。",
+      "examples": [
+        {
+          "fr": "L'eau est froide.",
+          "zh": "水是凉的。",
+          "tip": "l' + eau（阴性）"
+        },
+        {
+          "fr": "Je bois de l'eau.",
+          "zh": "我喝水。",
+          "tip": "部分冠词 de l'"
+        },
+        {
+          "fr": "Les eaux minérales sont chères.",
+          "zh": "矿泉水很贵。",
+          "tip": "不规则复数 eaux"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ eau est pure.",
+        "answer": "L'",
+        "answers": [
+          "L'",
+          "l'",
+          "L",
+          "l"
+        ],
+        "full": "L'eau est pure.",
+        "zh": "水是纯净的。"
+      }
+    },
+    {
+      "id": "ami",
+      "word": "ami",
+      "pos": "n",
+      "gender": "m",
+      "article": "un",
+      "zh": "朋友（男）",
+      "ipa": "/a.mi/",
+      "genderTip": "阳性 ami；阴性 amie。元音前定冠词用 l'。",
+      "examples": [
+        {
+          "fr": "C'est mon ami Paul.",
+          "zh": "这是我的朋友保罗。",
+          "tip": "阳性 ami"
+        },
+        {
+          "fr": "Elle est mon amie.",
+          "zh": "她是我的（女）朋友。",
+          "tip": "阴性加 e → amie"
+        },
+        {
+          "fr": "Mes amis viennent demain.",
+          "zh": "我的朋友们明天来。",
+          "tip": "复数 amis / amies"
+        }
+      ],
+      "cloze": {
+        "prompt": "Pierre est ___ ami fidèle.",
+        "answer": "un",
+        "answers": [
+          "un",
+          "Un"
+        ],
+        "full": "Pierre est un ami fidèle.",
+        "zh": "皮埃尔是一位忠实的朋友。"
+      }
+    },
+    {
+      "id": "ecole",
+      "word": "école",
+      "pos": "n",
+      "gender": "f",
+      "article": "l'",
+      "zh": "学校",
+      "ipa": "/e.kɔl/",
+      "genderTip": "école 阴性；元音开头用 l'。",
+      "examples": [
+        {
+          "fr": "L'école commence à huit heures.",
+          "zh": "学校八点开始。",
+          "tip": "l'école"
+        },
+        {
+          "fr": "Les enfants vont à l'école.",
+          "zh": "孩子们去上学。",
+          "tip": "固定搭配 à l'école"
+        },
+        {
+          "fr": "C'est une bonne école.",
+          "zh": "这是一所好学校。",
+          "tip": "不定冠词 une"
+        }
+      ],
+      "cloze": {
+        "prompt": "Les élèves entrent dans ___ école.",
+        "answer": "l'",
+        "answers": [
+          "l'",
+          "L'",
+          "l",
+          "L"
+        ],
+        "full": "Les élèves entrent dans l'école.",
+        "zh": "学生们走进学校。"
+      }
+    },
+    {
+      "id": "pain",
+      "word": "pain",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "面包",
+      "ipa": "/pɛ̃/",
+      "genderTip": "pain 阳性；买面包常说 du pain。",
+      "examples": [
+        {
+          "fr": "Le pain est frais.",
+          "zh": "面包是新鲜的。",
+          "tip": "阳性 le pain"
+        },
+        {
+          "fr": "Je voudrais du pain, s'il vous plaît.",
+          "zh": "请给我一些面包。",
+          "tip": "部分冠词 du"
+        },
+        {
+          "fr": "Une baguette de pain.",
+          "zh": "一根法棍面包。",
+          "tip": "量词 une baguette de"
+        }
+      ],
+      "cloze": {
+        "prompt": "Il achète ___ pain tous les matins.",
+        "answer": "du",
+        "answers": [
+          "du",
+          "Du"
+        ],
+        "full": "Il achète du pain tous les matins.",
+        "zh": "他每天早上买面包。"
+      }
+    },
+    {
+      "id": "fleur",
+      "word": "fleur",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "花",
+      "ipa": "/flœʁ/",
+      "genderTip": "fleur 阴性。",
+      "examples": [
+        {
+          "fr": "La fleur est rouge.",
+          "zh": "这朵花是红色的。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "Il offre des fleurs à sa mère.",
+          "zh": "他给妈妈送花。",
+          "tip": "复数 des fleurs"
+        },
+        {
+          "fr": "Quelle belle fleur !",
+          "zh": "多美的花啊！",
+          "tip": "感叹 quelle + 阴性"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ fleur sent bon.",
+        "answer": "La",
+        "answers": [
+          "La",
+          "la"
+        ],
+        "full": "La fleur sent bon.",
+        "zh": "这朵花很好闻。"
+      }
+    },
+    {
+      "id": "soleil",
+      "word": "soleil",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "太阳",
+      "ipa": "/sɔ.lɛj/",
+      "genderTip": "soleil 阳性。",
+      "examples": [
+        {
+          "fr": "Le soleil brille.",
+          "zh": "太阳在照耀。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "Il y a du soleil aujourd'hui.",
+          "zh": "今天有阳光。",
+          "tip": "du soleil"
+        },
+        {
+          "fr": "Au soleil, il fait chaud.",
+          "zh": "在太阳下很热。",
+          "tip": "介词 au = à + le"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ soleil se lève tôt.",
+        "answer": "Le",
+        "answers": [
+          "Le",
+          "le"
+        ],
+        "full": "Le soleil se lève tôt.",
+        "zh": "太阳升得很早。"
+      }
+    },
+    {
+      "id": "nuit",
+      "word": "nuit",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "夜晚",
+      "ipa": "/nɥi/",
+      "genderTip": "nuit 阴性。",
+      "examples": [
+        {
+          "fr": "La nuit est calme.",
+          "zh": "夜晚很安静。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "Bonne nuit !",
+          "zh": "晚安！",
+          "tip": "常用告别语"
+        },
+        {
+          "fr": "Ils travaillent de nuit.",
+          "zh": "他们上夜班。",
+          "tip": "de nuit"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ nuit tombe rapidement.",
+        "answer": "La",
+        "answers": [
+          "La",
+          "la"
+        ],
+        "full": "La nuit tombe rapidement.",
+        "zh": "夜幕降临得很快。"
+      }
+    },
+    {
+      "id": "temps",
+      "word": "temps",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "时间；天气",
+      "ipa": "/tɑ̃/",
+      "genderTip": "temps 阳性，单复数同形。",
+      "examples": [
+        {
+          "fr": "Le temps passe vite.",
+          "zh": "时间过得很快。",
+          "tip": "「时间」义"
+        },
+        {
+          "fr": "Quel temps fait-il ?",
+          "zh": "天气怎么样？",
+          "tip": "「天气」义"
+        },
+        {
+          "fr": "Je n'ai pas le temps.",
+          "zh": "我没有时间。",
+          "tip": "常用短语"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ temps est beau aujourd'hui.",
+        "answer": "Le",
+        "answers": [
+          "Le",
+          "le"
+        ],
+        "full": "Le temps est beau aujourd'hui.",
+        "zh": "今天天气很好。"
+      }
+    },
+    {
+      "id": "ville",
+      "word": "ville",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "城市",
+      "ipa": "/vil/",
+      "genderTip": "ville 阴性。",
+      "examples": [
+        {
+          "fr": "Paris est une grande ville.",
+          "zh": "巴黎是一座大城市。",
+          "tip": "une ville"
+        },
+        {
+          "fr": "J'habite en ville.",
+          "zh": "我住在城里。",
+          "tip": "en ville"
+        },
+        {
+          "fr": "Les villes françaises sont belles.",
+          "zh": "法国的城市很美。",
+          "tip": "复数 + 形容词一致"
+        }
+      ],
+      "cloze": {
+        "prompt": "Lyon est ___ ville dynamique.",
+        "answer": "une",
+        "answers": [
+          "une",
+          "Une"
+        ],
+        "full": "Lyon est une ville dynamique.",
+        "zh": "里昂是一座充满活力的城市。"
+      }
+    },
+    {
+      "id": "voiture",
+      "word": "voiture",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "汽车",
+      "ipa": "/vwa.tyʁ/",
+      "genderTip": "voiture 阴性。",
+      "examples": [
+        {
+          "fr": "La voiture est rouge.",
+          "zh": "汽车是红色的。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "Nous allons en voiture.",
+          "zh": "我们开车去。",
+          "tip": "en voiture"
+        },
+        {
+          "fr": "Où est ma voiture ?",
+          "zh": "我的车在哪儿？",
+          "tip": "物主代词 ma + 阴性"
+        }
+      ],
+      "cloze": {
+        "prompt": "Elle conduit ___ voiture neuve.",
+        "answer": "une",
+        "answers": [
+          "une",
+          "Une"
+        ],
+        "full": "Elle conduit une voiture neuve.",
+        "zh": "她开一辆新车。"
+      }
+    },
+    {
+      "id": "jardin",
+      "word": "jardin",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "花园",
+      "ipa": "/ʒaʁ.dɛ̃/",
+      "genderTip": "jardin 阳性。",
+      "examples": [
+        {
+          "fr": "Le jardin est magnifique.",
+          "zh": "花园很漂亮。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "Les enfants jouent dans le jardin.",
+          "zh": "孩子们在花园里玩。",
+          "tip": "dans le jardin"
+        },
+        {
+          "fr": "Un jardin botanique.",
+          "zh": "一座植物园。",
+          "tip": "un jardin"
+        }
+      ],
+      "cloze": {
+        "prompt": "Il y a des roses dans ___ jardin.",
+        "answer": "le",
+        "answers": [
+          "le",
+          "Le"
+        ],
+        "full": "Il y a des roses dans le jardin.",
+        "zh": "花园里有玫瑰。"
+      }
+    },
+    {
+      "id": "porte",
+      "word": "porte",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "门",
+      "ipa": "/pɔʁt/",
+      "genderTip": "porte 阴性；动词 porter 是「拿/穿」。",
+      "examples": [
+        {
+          "fr": "Ferme la porte, s'il te plaît.",
+          "zh": "请把门关上。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "La porte d'entrée.",
+          "zh": "大门 / 入口门。",
+          "tip": "复合名词"
+        },
+        {
+          "fr": "Ils ouvrent les portes.",
+          "zh": "他们打开门。",
+          "tip": "复数 les portes"
+        }
+      ],
+      "cloze": {
+        "prompt": "N'oublie pas de fermer ___ porte.",
+        "answer": "la",
+        "answers": [
+          "la",
+          "La"
+        ],
+        "full": "N'oublie pas de fermer la porte.",
+        "zh": "别忘了关门。"
+      }
+    },
+    {
+      "id": "fenetre",
+      "word": "fenêtre",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "窗户",
+      "ipa": "/fə.nɛtʁ/",
+      "genderTip": "fenêtre 阴性。",
+      "examples": [
+        {
+          "fr": "Ouvre la fenêtre !",
+          "zh": "打开窗户！",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "La fenêtre donne sur la rue.",
+          "zh": "窗户朝向街道。",
+          "tip": "donner sur"
+        },
+        {
+          "fr": "Les fenêtres sont propres.",
+          "zh": "窗户很干净。",
+          "tip": "复数 + 形容词一致"
+        }
+      ],
+      "cloze": {
+        "prompt": "Il fait chaud, ouvre ___ fenêtre.",
+        "answer": "la",
+        "answers": [
+          "la",
+          "La"
+        ],
+        "full": "Il fait chaud, ouvre la fenêtre.",
+        "zh": "天很热，打开窗户。"
+      }
+    },
+    {
+      "id": "chien",
+      "word": "chien",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "狗",
+      "ipa": "/ʃjɛ̃/",
+      "genderTip": "阳性 chien；阴性 chienne。",
+      "examples": [
+        {
+          "fr": "Le chien aboie.",
+          "zh": "狗在叫。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "C'est une chienne adorable.",
+          "zh": "这是一只可爱的母狗。",
+          "tip": "阴性 chienne"
+        },
+        {
+          "fr": "Nous promenons le chien.",
+          "zh": "我们遛狗。",
+          "tip": "promener le chien"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ chien joue dans le parc.",
+        "answer": "Le",
+        "answers": [
+          "Le",
+          "le"
+        ],
+        "full": "Le chien joue dans le parc.",
+        "zh": "狗在公园里玩。"
+      }
+    },
+    {
+      "id": "enfant",
+      "word": "enfant",
+      "pos": "n",
+      "gender": "m",
+      "article": "un",
+      "zh": "孩子",
+      "ipa": "/ɑ̃.fɑ̃/",
+      "genderTip": "enfant 可指男孩或女孩；复数 les enfants。",
+      "examples": [
+        {
+          "fr": "Un enfant rit.",
+          "zh": "一个孩子在笑。",
+          "tip": "阳性形式常用"
+        },
+        {
+          "fr": "C'est une enfant intelligente.",
+          "zh": "这是一个聪明的女孩。",
+          "tip": "指女孩可用 une"
+        },
+        {
+          "fr": "Les enfants jouent dehors.",
+          "zh": "孩子们在外面玩。",
+          "tip": "复数"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ enfant apprend le français.",
+        "answer": "L'",
+        "answers": [
+          "L'",
+          "l'",
+          "L",
+          "l"
+        ],
+        "full": "L'enfant apprend le français.",
+        "zh": "这个孩子在学法语。"
+      }
+    },
+    {
+      "id": "homme",
+      "word": "homme",
+      "pos": "n",
+      "gender": "m",
+      "article": "l'",
+      "zh": "男人；人",
+      "ipa": "/ɔm/",
+      "genderTip": "homme 阳性；h 哑音，用 l'/un。",
+      "examples": [
+        {
+          "fr": "L'homme lit le journal.",
+          "zh": "那个男人在读报。",
+          "tip": "l'homme"
+        },
+        {
+          "fr": "C'est un homme gentil.",
+          "zh": "他是一个善良的人。",
+          "tip": "un homme"
+        },
+        {
+          "fr": "Les hommes travaillent ici.",
+          "zh": "男人们在这里工作。",
+          "tip": "复数"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ homme parle français.",
+        "answer": "L'",
+        "answers": [
+          "L'",
+          "l'",
+          "L",
+          "l"
+        ],
+        "full": "L'homme parle français.",
+        "zh": "这个男人说法语。"
+      }
+    },
+    {
+      "id": "femme",
+      "word": "femme",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "女人；妻子",
+      "ipa": "/fam/",
+      "genderTip": "femme 阴性。",
+      "examples": [
+        {
+          "fr": "La femme sourit.",
+          "zh": "那位女士在微笑。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "C'est ma femme.",
+          "zh": "这是我妻子。",
+          "tip": "「妻子」义"
+        },
+        {
+          "fr": "Les femmes discutent.",
+          "zh": "女人们在交谈。",
+          "tip": "复数"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ femme est médecin.",
+        "answer": "La",
+        "answers": [
+          "La",
+          "la"
+        ],
+        "full": "La femme est médecin.",
+        "zh": "这位女士是医生。"
+      }
+    },
+    {
+      "id": "jour",
+      "word": "jour",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "天；日子",
+      "ipa": "/ʒuʁ/",
+      "genderTip": "jour 阳性。",
+      "examples": [
+        {
+          "fr": "Bonjour !",
+          "zh": "你好！（白天）",
+          "tip": "bon + jour"
+        },
+        {
+          "fr": "Un jour, je visiterai Paris.",
+          "zh": "有一天我会去巴黎。",
+          "tip": "un jour"
+        },
+        {
+          "fr": "Tous les jours.",
+          "zh": "每天。",
+          "tip": "复数 jours"
+        }
+      ],
+      "cloze": {
+        "prompt": "Il travaille tous ___ jours.",
+        "answer": "les",
+        "answers": [
+          "les",
+          "Les"
+        ],
+        "full": "Il travaille tous les jours.",
+        "zh": "他每天工作。"
+      }
+    },
+    {
+      "id": "annee",
+      "word": "année",
+      "pos": "n",
+      "gender": "f",
+      "article": "une",
+      "zh": "年",
+      "ipa": "/a.ne/",
+      "genderTip": "année 阴性强调持续；an 阳性强调数量。",
+      "examples": [
+        {
+          "fr": "Bonne année !",
+          "zh": "新年快乐！",
+          "tip": "阴性 année"
+        },
+        {
+          "fr": "Cette année, j'apprends le français.",
+          "zh": "今年我学法语。",
+          "tip": "cette année"
+        },
+        {
+          "fr": "Il a vingt ans.",
+          "zh": "他二十岁。",
+          "tip": "年龄用 an（阳性）"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ année dernière était difficile.",
+        "answer": "L'",
+        "answers": [
+          "L'",
+          "l'",
+          "L",
+          "l"
+        ],
+        "full": "L'année dernière était difficile.",
+        "zh": "去年很艰难。"
+      }
+    },
+    {
+      "id": "pomme",
+      "word": "pomme",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "苹果",
+      "ipa": "/pɔm/",
+      "genderTip": "pomme 阴性。",
+      "examples": [
+        {
+          "fr": "La pomme est verte.",
+          "zh": "苹果是绿的。",
+          "tip": "阴性 + 形容词 verte"
+        },
+        {
+          "fr": "Je mange une pomme.",
+          "zh": "我吃一个苹果。",
+          "tip": "une pomme"
+        },
+        {
+          "fr": "Des pommes de terre.",
+          "zh": "土豆。",
+          "tip": "复合词"
+        }
+      ],
+      "cloze": {
+        "prompt": "Elle coupe ___ pomme.",
+        "answer": "une",
+        "answers": [
+          "une",
+          "Une"
+        ],
+        "full": "Elle coupe une pomme.",
+        "zh": "她切一个苹果。"
+      }
+    },
+    {
+      "id": "fromage",
+      "word": "fromage",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "奶酪",
+      "ipa": "/fʁɔ.maʒ/",
+      "genderTip": "fromage 阳性。",
+      "examples": [
+        {
+          "fr": "Le fromage français est célèbre.",
+          "zh": "法国奶酪很有名。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "Je voudrais du fromage.",
+          "zh": "我想要一些奶酪。",
+          "tip": "du fromage"
+        },
+        {
+          "fr": "Un plateau de fromages.",
+          "zh": "一盘奶酪。",
+          "tip": "复数"
+        }
+      ],
+      "cloze": {
+        "prompt": "Tu aimes ___ fromage ?",
+        "answer": "le",
+        "answers": [
+          "le",
+          "Le"
+        ],
+        "full": "Tu aimes le fromage ?",
+        "zh": "你喜欢奶酪吗？"
+      }
+    },
+    {
+      "id": "cafe",
+      "word": "café",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "咖啡；咖啡馆",
+      "ipa": "/ka.fe/",
+      "genderTip": "café 阳性。",
+      "examples": [
+        {
+          "fr": "Je prends un café.",
+          "zh": "我点一杯咖啡。",
+          "tip": "un café"
+        },
+        {
+          "fr": "Le café est chaud.",
+          "zh": "咖啡是热的。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "On se retrouve au café.",
+          "zh": "我们在咖啡馆见。",
+          "tip": "地点义"
+        }
+      ],
+      "cloze": {
+        "prompt": "Elle boit ___ café le matin.",
+        "answer": "du",
+        "answers": [
+          "du",
+          "Du"
+        ],
+        "full": "Elle boit du café le matin.",
+        "zh": "她早上喝咖啡。"
+      }
+    },
+    {
+      "id": "the",
+      "word": "thé",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "茶",
+      "ipa": "/te/",
+      "genderTip": "thé 阳性。",
+      "examples": [
+        {
+          "fr": "Le thé vert est bon pour la santé.",
+          "zh": "绿茶对健康有益。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "Une tasse de thé.",
+          "zh": "一杯茶。",
+          "tip": "de thé"
+        },
+        {
+          "fr": "Je préfère le thé au café.",
+          "zh": "比起咖啡我更喜欢茶。",
+          "tip": "préférer A à B"
+        }
+      ],
+      "cloze": {
+        "prompt": "Nous buvons ___ thé l'après-midi.",
+        "answer": "du",
+        "answers": [
+          "du",
+          "Du"
+        ],
+        "full": "Nous buvons du thé l'après-midi.",
+        "zh": "我们下午喝茶。"
+      }
+    },
+    {
+      "id": "lait",
+      "word": "lait",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "牛奶",
+      "ipa": "/lɛ/",
+      "genderTip": "lait 阳性。",
+      "examples": [
+        {
+          "fr": "Le lait est froid.",
+          "zh": "牛奶是凉的。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "Un verre de lait.",
+          "zh": "一杯牛奶。",
+          "tip": "de lait"
+        },
+        {
+          "fr": "Il y a du lait dans le frigo.",
+          "zh": "冰箱里有牛奶。",
+          "tip": "du lait"
+        }
+      ],
+      "cloze": {
+        "prompt": "L'enfant boit ___ lait.",
+        "answer": "du",
+        "answers": [
+          "du",
+          "Du"
+        ],
+        "full": "L'enfant boit du lait.",
+        "zh": "孩子喝牛奶。"
+      }
+    },
+    {
+      "id": "rue",
+      "word": "rue",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "街道",
+      "ipa": "/ʁy/",
+      "genderTip": "rue 阴性。",
+      "examples": [
+        {
+          "fr": "La rue est animée.",
+          "zh": "街道很热闹。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "J'habite rue Victor Hugo.",
+          "zh": "我住在雨果街。",
+          "tip": "地址省略冠词"
+        },
+        {
+          "fr": "Dans la rue.",
+          "zh": "在街上。",
+          "tip": "dans la rue"
+        }
+      ],
+      "cloze": {
+        "prompt": "Nous marchons dans ___ rue.",
+        "answer": "la",
+        "answers": [
+          "la",
+          "La"
+        ],
+        "full": "Nous marchons dans la rue.",
+        "zh": "我们在街上走。"
+      }
+    },
+    {
+      "id": "gare",
+      "word": "gare",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "火车站",
+      "ipa": "/ɡaʁ/",
+      "genderTip": "gare 阴性。",
+      "examples": [
+        {
+          "fr": "La gare est proche.",
+          "zh": "火车站很近。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "Je vais à la gare.",
+          "zh": "我去火车站。",
+          "tip": "à la gare"
+        },
+        {
+          "fr": "Devant la gare.",
+          "zh": "在火车站前。",
+          "tip": "devant"
+        }
+      ],
+      "cloze": {
+        "prompt": "Le train part de ___ gare.",
+        "answer": "la",
+        "answers": [
+          "la",
+          "La"
+        ],
+        "full": "Le train part de la gare.",
+        "zh": "火车从车站出发。"
+      }
+    },
+    {
+      "id": "train",
+      "word": "train",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "火车",
+      "ipa": "/tʁɛ̃/",
+      "genderTip": "train 阳性。",
+      "examples": [
+        {
+          "fr": "Le train arrive à l'heure.",
+          "zh": "火车准时到达。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "Prendre le train.",
+          "zh": "坐火车。",
+          "tip": "prendre le train"
+        },
+        {
+          "fr": "Un billet de train.",
+          "zh": "一张火车票。",
+          "tip": "de train"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ train pour Lyon part à dix heures.",
+        "answer": "Le",
+        "answers": [
+          "Le",
+          "le"
+        ],
+        "full": "Le train pour Lyon part à dix heures.",
+        "zh": "去里昂的火车十点出发。"
+      }
+    },
+    {
+      "id": "avion",
+      "word": "avion",
+      "pos": "n",
+      "gender": "m",
+      "article": "l'",
+      "zh": "飞机",
+      "ipa": "/a.vjɔ̃/",
+      "genderTip": "avion 阳性；元音开头用 l'。",
+      "examples": [
+        {
+          "fr": "L'avion décolle.",
+          "zh": "飞机起飞。",
+          "tip": "l'avion"
+        },
+        {
+          "fr": "Voyager en avion.",
+          "zh": "坐飞机旅行。",
+          "tip": "en avion"
+        },
+        {
+          "fr": "Un billet d'avion.",
+          "zh": "一张机票。",
+          "tip": "d'avion"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ avion atterrit à Paris.",
+        "answer": "L'",
+        "answers": [
+          "L'",
+          "l'",
+          "L",
+          "l"
+        ],
+        "full": "L'avion atterrit à Paris.",
+        "zh": "飞机在巴黎降落。"
+      }
+    },
+    {
+      "id": "mer",
+      "word": "mer",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "海",
+      "ipa": "/mɛʁ/",
+      "genderTip": "mer 阴性；mère（母亲）同音异义。",
+      "examples": [
+        {
+          "fr": "La mer est bleue.",
+          "zh": "海是蓝色的。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "Nous allons à la mer.",
+          "zh": "我们去海边。",
+          "tip": "à la mer"
+        },
+        {
+          "fr": "Au bord de la mer.",
+          "zh": "在海边。",
+          "tip": "固定搭配"
+        }
+      ],
+      "cloze": {
+        "prompt": "Les enfants nagent dans ___ mer.",
+        "answer": "la",
+        "answers": [
+          "la",
+          "La"
+        ],
+        "full": "Les enfants nagent dans la mer.",
+        "zh": "孩子们在海里游泳。"
+      }
+    },
+    {
+      "id": "montagne",
+      "word": "montagne",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "山",
+      "ipa": "/mɔ̃.taɲ/",
+      "genderTip": "montagne 阴性。",
+      "examples": [
+        {
+          "fr": "La montagne est haute.",
+          "zh": "山很高。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "Ils font du ski à la montagne.",
+          "zh": "他们在山里滑雪。",
+          "tip": "à la montagne"
+        },
+        {
+          "fr": "Une chaîne de montagnes.",
+          "zh": "一条山脉。",
+          "tip": "复数"
+        }
+      ],
+      "cloze": {
+        "prompt": "La ___ est couverte de neige.",
+        "answer": "montagne",
+        "answers": [
+          "montagne",
+          "Montagne"
+        ],
+        "full": "La montagne est couverte de neige.",
+        "zh": "山上覆盖着积雪。"
+      }
+    },
+    {
+      "id": "arbre",
+      "word": "arbre",
+      "pos": "n",
+      "gender": "m",
+      "article": "l'",
+      "zh": "树",
+      "ipa": "/aʁbʁ/",
+      "genderTip": "arbre 阳性；元音开头用 l'。",
+      "examples": [
+        {
+          "fr": "L'arbre est grand.",
+          "zh": "这棵树很高。",
+          "tip": "l'arbre"
+        },
+        {
+          "fr": "Sous l'arbre.",
+          "zh": "在树下。",
+          "tip": "sous"
+        },
+        {
+          "fr": "Les arbres perdent leurs feuilles.",
+          "zh": "树叶落了。",
+          "tip": "复数"
+        }
+      ],
+      "cloze": {
+        "prompt": "___ arbre donne des fruits.",
+        "answer": "L'",
+        "answers": [
+          "L'",
+          "l'",
+          "L",
+          "l"
+        ],
+        "full": "L'arbre donne des fruits.",
+        "zh": "这棵树结果子。"
+      }
+    },
+    {
+      "id": "fete",
+      "word": "fête",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "节日；庆祝",
+      "ipa": "/fɛt/",
+      "genderTip": "fête 阴性。",
+      "examples": [
+        {
+          "fr": "Joyeuse fête !",
+          "zh": "节日快乐！",
+          "tip": "常用祝福"
+        },
+        {
+          "fr": "La fête nationale.",
+          "zh": "国庆节。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "On fait la fête.",
+          "zh": "我们在庆祝。",
+          "tip": "faire la fête"
+        }
+      ],
+      "cloze": {
+        "prompt": "C'est ___ fête demain.",
+        "answer": "la",
+        "answers": [
+          "la",
+          "La"
+        ],
+        "full": "C'est la fête demain.",
+        "zh": "明天是节日。"
+      }
+    },
+    {
+      "id": "musique",
+      "word": "musique",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "音乐",
+      "ipa": "/my.zik/",
+      "genderTip": "musique 阴性。",
+      "examples": [
+        {
+          "fr": "J'écoute de la musique.",
+          "zh": "我听音乐。",
+          "tip": "de la musique"
+        },
+        {
+          "fr": "La musique classique.",
+          "zh": "古典音乐。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "Faire de la musique.",
+          "zh": "搞音乐 / 演奏。",
+          "tip": "faire de la"
+        }
+      ],
+      "cloze": {
+        "prompt": "Elle aime ___ musique française.",
+        "answer": "la",
+        "answers": [
+          "la",
+          "La"
+        ],
+        "full": "Elle aime la musique française.",
+        "zh": "她喜欢法国音乐。"
+      }
+    },
+    {
+      "id": "film",
+      "word": "film",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "电影",
+      "ipa": "/film/",
+      "genderTip": "film 阳性。",
+      "examples": [
+        {
+          "fr": "Le film commence à vingt heures.",
+          "zh": "电影八点开始。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "Voir un film.",
+          "zh": "看电影。",
+          "tip": "un film"
+        },
+        {
+          "fr": "Un film d'amour.",
+          "zh": "一部爱情片。",
+          "tip": "de + 名词"
+        }
+      ],
+      "cloze": {
+        "prompt": "Nous regardons ___ film ce soir.",
+        "answer": "un",
+        "answers": [
+          "un",
+          "Un"
+        ],
+        "full": "Nous regardons un film ce soir.",
+        "zh": "我们今晚看一部电影。"
+      }
+    },
+    {
+      "id": "photo",
+      "word": "photo",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "照片",
+      "ipa": "/fɔ.to/",
+      "genderTip": "photo 是 photographie 缩写，阴性。",
+      "examples": [
+        {
+          "fr": "Prendre une photo.",
+          "zh": "拍一张照片。",
+          "tip": "une photo"
+        },
+        {
+          "fr": "La photo est floue.",
+          "zh": "照片模糊了。",
+          "tip": "阴性 la"
+        },
+        {
+          "fr": "Des photos de voyage.",
+          "zh": "旅行照片。",
+          "tip": "复数"
+        }
+      ],
+      "cloze": {
+        "prompt": "Regarde ___ photo !",
+        "answer": "cette",
+        "answers": [
+          "cette",
+          "Cette"
+        ],
+        "full": "Regarde cette photo !",
+        "zh": "看看这张照片！"
+      }
+    },
+    {
+      "id": "telephone",
+      "word": "téléphone",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "电话",
+      "ipa": "/te.le.fɔn/",
+      "genderTip": "téléphone 阳性。",
+      "examples": [
+        {
+          "fr": "Le téléphone sonne.",
+          "zh": "电话响了。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "Passer un coup de téléphone.",
+          "zh": "打个电话。",
+          "tip": "常用短语"
+        },
+        {
+          "fr": "Mon téléphone est déchargé.",
+          "zh": "我手机没电了。",
+          "tip": "物主代词 mon"
+        }
+      ],
+      "cloze": {
+        "prompt": "Où est ___ téléphone ?",
+        "answer": "mon",
+        "answers": [
+          "mon",
+          "Mon"
+        ],
+        "full": "Où est mon téléphone ?",
+        "zh": "我的电话在哪儿？"
+      }
+    },
+    {
+      "id": "travail",
+      "word": "travail",
+      "pos": "n",
+      "gender": "m",
+      "article": "le",
+      "zh": "工作",
+      "ipa": "/tʁa.vaj/",
+      "genderTip": "travail 阳性；复数 travaux。",
+      "examples": [
+        {
+          "fr": "Le travail est terminé.",
+          "zh": "工作完成了。",
+          "tip": "阳性 le"
+        },
+        {
+          "fr": "Aller au travail.",
+          "zh": "去上班。",
+          "tip": "au = à + le"
+        },
+        {
+          "fr": "Des travaux publics.",
+          "zh": "公共工程。",
+          "tip": "不规则复数 travaux"
+        }
+      ],
+      "cloze": {
+        "prompt": "Il rentre ___ travail à dix-huit heures.",
+        "answer": "du",
+        "answers": [
+          "du",
+          "Du"
+        ],
+        "full": "Il rentre du travail à dix-huit heures.",
+        "zh": "他六点下班回家。"
+      }
+    },
+    {
+      "id": "argent",
+      "word": "argent",
+      "pos": "n",
+      "gender": "m",
+      "article": "l'",
+      "zh": "钱；银",
+      "ipa": "/aʁ.ʒɑ̃/",
+      "genderTip": "argent 阳性；元音开头用 l'。",
+      "examples": [
+        {
+          "fr": "L'argent ne fait pas le bonheur.",
+          "zh": "金钱买不来幸福。",
+          "tip": "l'argent"
+        },
+        {
+          "fr": "Je n'ai pas d'argent.",
+          "zh": "我没钱。",
+          "tip": "de + 否定 → d'"
+        },
+        {
+          "fr": "Gagner de l'argent.",
+          "zh": "赚钱。",
+          "tip": "de l'argent"
+        }
+      ],
+      "cloze": {
+        "prompt": "Il économise ___ argent.",
+        "answer": "de l'",
+        "answers": [
+          "de l'",
+          "de l",
+          "De l'",
+          "De l"
+        ],
+        "full": "Il économise de l'argent.",
+        "zh": "他在存钱。"
+      }
+    },
+    {
+      "id": "heure",
+      "word": "heure",
+      "pos": "n",
+      "gender": "f",
+      "article": "l'",
+      "zh": "小时；钟点",
+      "ipa": "/œʁ/",
+      "genderTip": "heure 阴性；哑音 h，用 l'。",
+      "examples": [
+        {
+          "fr": "Quelle heure est-il ?",
+          "zh": "几点了？",
+          "tip": "常用问句"
+        },
+        {
+          "fr": "Une heure et demie.",
+          "zh": "一个半小时。",
+          "tip": "une heure"
+        },
+        {
+          "fr": "À tout à l'heure !",
+          "zh": "一会儿见！",
+          "tip": "à tout à l'heure"
+        }
+      ],
+      "cloze": {
+        "prompt": "Il est huit ___.",
+        "answer": "heures",
+        "answers": [
+          "heures",
+          "Heures"
+        ],
+        "full": "Il est huit heures.",
+        "zh": "现在八点。"
+      }
+    },
+    {
+      "id": "couleur",
+      "word": "couleur",
+      "pos": "n",
+      "gender": "f",
+      "article": "la",
+      "zh": "颜色",
+      "ipa": "/ku.lœʁ/",
+      "genderTip": "couleur 阴性。",
+      "examples": [
+        {
+          "fr": "Quelle est ta couleur préférée ?",
+          "zh": "你最喜欢的颜色是什么？",
+          "tip": "阴性"
+        },
+        {
+          "fr": "La couleur du ciel.",
+          "zh": "天空的颜色。",
+          "tip": "la couleur de"
+        },
+        {
+          "fr": "Des couleurs vives.",
+          "zh": "鲜艳的颜色。",
+          "tip": "复数 + 形容词一致"
+        }
+      ],
+      "cloze": {
+        "prompt": "Le rouge est ___ couleur chaude.",
+        "answer": "une",
+        "answers": [
+          "une",
+          "Une"
+        ],
+        "full": "Le rouge est une couleur chaude.",
+        "zh": "红色是暖色。"
+      }
+    },
+    {
+      "id": "manger",
+      "word": "manger",
+      "pos": "v",
+      "gender": "",
+      "article": "",
+      "zh": "吃",
+      "ipa": "/mɑ̃.ʒe/",
+      "genderTip": "动词无阴阳性；过去分词 mangé。",
+      "examples": [
+        {
+          "fr": "Je mange une pomme.",
+          "zh": "我吃一个苹果。",
+          "tip": "现在时 je mange"
+        },
+        {
+          "fr": "Nous mangeons ensemble.",
+          "zh": "我们一起吃。",
+          "tip": "nous mangeons（保留 e）"
+        },
+        {
+          "fr": "Il a mangé trop vite.",
+          "zh": "他吃得太快了。",
+          "tip": "复合过去时"
+        }
+      ],
+      "cloze": {
+        "prompt": "Tu ___ du pain le matin.",
+        "answer": "manges",
+        "answers": [
+          "manges",
+          "Manges"
+        ],
+        "full": "Tu manges du pain le matin.",
+        "zh": "你早上吃面包。"
+      }
+    },
+    {
+      "id": "parler",
+      "word": "parler",
+      "pos": "v",
+      "gender": "",
+      "article": "",
+      "zh": "说；交谈",
+      "ipa": "/paʁ.le/",
+      "genderTip": "规则 -er 动词。",
+      "examples": [
+        {
+          "fr": "Je parle français.",
+          "zh": "我说法语。",
+          "tip": "parler + 语言不用冠词"
+        },
+        {
+          "fr": "Nous parlons de la musique.",
+          "zh": "我们在谈论音乐。",
+          "tip": "parler de"
+        },
+        {
+          "fr": "Elle a parlé à son ami.",
+          "zh": "她跟朋友说过话。",
+          "tip": "parler à"
+        }
+      ],
+      "cloze": {
+        "prompt": "Ils ___ anglais très bien.",
+        "answer": "parlent",
+        "answers": [
+          "parlent",
+          "Parlent"
+        ],
+        "full": "Ils parlent anglais très bien.",
+        "zh": "他们英语说得很好。"
+      }
+    },
+    {
+      "id": "aller",
+      "word": "aller",
+      "pos": "v",
+      "gender": "",
+      "article": "",
+      "zh": "去",
+      "ipa": "/a.le/",
+      "genderTip": "不规则动词；助动词用 être。",
+      "examples": [
+        {
+          "fr": "Je vais à l'école.",
+          "zh": "我去学校。",
+          "tip": "je vais"
+        },
+        {
+          "fr": "Nous allons au marché.",
+          "zh": "我们去市场。",
+          "tip": "au = à + le"
+        },
+        {
+          "fr": "Elle est allée à Paris.",
+          "zh": "她去了巴黎。",
+          "tip": "être + allé(e)"
+        }
+      ],
+      "cloze": {
+        "prompt": "Tu ___ au cinéma ce soir ?",
+        "answer": "vas",
+        "answers": [
+          "vas",
+          "Vas"
+        ],
+        "full": "Tu vas au cinéma ce soir ?",
+        "zh": "你今晚去电影院吗？"
+      }
+    },
+    {
+      "id": "etre",
+      "word": "être",
+      "pos": "v",
+      "gender": "",
+      "article": "",
+      "zh": "是；在",
+      "ipa": "/ɛtʁ/",
+      "genderTip": "最常用不规则动词之一。",
+      "examples": [
+        {
+          "fr": "Je suis étudiant.",
+          "zh": "我是学生。",
+          "tip": "je suis"
+        },
+        {
+          "fr": "Nous sommes contents.",
+          "zh": "我们很高兴。",
+          "tip": "形容词性数一致"
+        },
+        {
+          "fr": "Où es-tu ?",
+          "zh": "你在哪儿？",
+          "tip": "tu es → es-tu"
+        }
+      ],
+      "cloze": {
+        "prompt": "Elle ___ professeur.",
+        "answer": "est",
+        "answers": [
+          "est",
+          "Est"
+        ],
+        "full": "Elle est professeur.",
+        "zh": "她是老师。"
+      }
+    },
+    {
+      "id": "avoir",
+      "word": "avoir",
+      "pos": "v",
+      "gender": "",
+      "article": "",
+      "zh": "有",
+      "ipa": "/a.vwaʁ/",
+      "genderTip": "不规则动词；也作助动词。",
+      "examples": [
+        {
+          "fr": "J'ai un livre.",
+          "zh": "我有一本书。",
+          "tip": "j'ai"
+        },
+        {
+          "fr": "Nous avons faim.",
+          "zh": "我们饿了。",
+          "tip": "avoir faim"
+        },
+        {
+          "fr": "Tu as mangé ?",
+          "zh": "你吃过了吗？",
+          "tip": "助动词 + 过去分词"
+        }
+      ],
+      "cloze": {
+        "prompt": "Ils ___ deux chats.",
+        "answer": "ont",
+        "answers": [
+          "ont",
+          "Ont"
+        ],
+        "full": "Ils ont deux chats.",
+        "zh": "他们有两只猫。"
+      }
+    },
+    {
+      "id": "beau",
+      "word": "beau",
+      "pos": "adj",
+      "gender": "m",
+      "article": "",
+      "zh": "美的；英俊的",
+      "ipa": "/bo/",
+      "genderTip": "阳性 beau / bel；阴性 belle；复数 beaux / belles。",
+      "examples": [
+        {
+          "fr": "Un beau jardin.",
+          "zh": "一座美丽的花园。",
+          "tip": "阳性 beau"
+        },
+        {
+          "fr": "Un bel arbre.",
+          "zh": "一棵漂亮的树。",
+          "tip": "元音前用 bel"
+        },
+        {
+          "fr": "Une belle maison.",
+          "zh": "一栋漂亮的房子。",
+          "tip": "阴性 belle"
+        }
+      ],
+      "cloze": {
+        "prompt": "C'est une ___ journée.",
+        "answer": "belle",
+        "answers": [
+          "belle",
+          "Belle"
+        ],
+        "full": "C'est une belle journée.",
+        "zh": "这是美好的一天。"
+      }
+    },
+    {
+      "id": "petit",
+      "word": "petit",
+      "pos": "adj",
+      "gender": "m",
+      "article": "",
+      "zh": "小的",
+      "ipa": "/pə.ti/",
+      "genderTip": "阳性 petit；阴性 petite。",
+      "examples": [
+        {
+          "fr": "Un petit chat.",
+          "zh": "一只小猫。",
+          "tip": "阳性"
+        },
+        {
+          "fr": "Une petite fille.",
+          "zh": "一个小女孩。",
+          "tip": "阴性 +e"
+        },
+        {
+          "fr": "Les petits enfants.",
+          "zh": "小孩子。",
+          "tip": "复数 +s"
+        }
+      ],
+      "cloze": {
+        "prompt": "J'habite dans un ___ appartement.",
+        "answer": "petit",
+        "answers": [
+          "petit",
+          "Petit"
+        ],
+        "full": "J'habite dans un petit appartement.",
+        "zh": "我住在一套小公寓里。"
+      }
+    },
+    {
+      "id": "grand",
+      "word": "grand",
+      "pos": "adj",
+      "gender": "m",
+      "article": "",
+      "zh": "大的；高的",
+      "ipa": "/ɡʁɑ̃/",
+      "genderTip": "阳性 grand；阴性 grande。",
+      "examples": [
+        {
+          "fr": "Un grand homme.",
+          "zh": "一位大人物 / 高个子男人。",
+          "tip": "阳性"
+        },
+        {
+          "fr": "Une grande ville.",
+          "zh": "一座大城市。",
+          "tip": "阴性"
+        },
+        {
+          "fr": "Les grands-parents.",
+          "zh": "祖父母。",
+          "tip": "复数"
+        }
+      ],
+      "cloze": {
+        "prompt": "Paris est une ___ ville.",
+        "answer": "grande",
+        "answers": [
+          "grande",
+          "Grande"
+        ],
+        "full": "Paris est une grande ville.",
+        "zh": "巴黎是一座大城市。"
+      }
+    },
+    {
+      "id": "bon",
+      "word": "bon",
+      "pos": "adj",
+      "gender": "m",
+      "article": "",
+      "zh": "好的",
+      "ipa": "/bɔ̃/",
+      "genderTip": "阳性 bon；阴性 bonne。",
+      "examples": [
+        {
+          "fr": "Un bon café.",
+          "zh": "一杯好咖啡。",
+          "tip": "阳性"
+        },
+        {
+          "fr": "Une bonne idée.",
+          "zh": "一个好主意。",
+          "tip": "阴性 bonne"
+        },
+        {
+          "fr": "De bons amis.",
+          "zh": "好朋友们。",
+          "tip": "复数 bons"
+        }
+      ],
+      "cloze": {
+        "prompt": "C'est un ___ restaurant.",
+        "answer": "bon",
+        "answers": [
+          "bon",
+          "Bon"
+        ],
+        "full": "C'est un bon restaurant.",
+        "zh": "这是一家好餐馆。"
+      }
+    }
+  ]
+}

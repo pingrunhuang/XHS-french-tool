@@ -20,13 +20,20 @@ Bug tracker for the Xiaohongshu H5 minitool「法语每日五词」(FRK的独立
 - appId：`6ae582e08eb4360015cc7e86`
 - 状态：审核中
 
+## 源码结构
+
+- `src/`：源码
+- `dist/`：与 `src` 相同的打包输入
+- `french-daily-5.zip`：v1.0.1 送审包，md5 `ca25e490e768e63ee8ed156e11d5bf9c`
+- `assets/`：`icon.jpg`、`cover.jpg`
+
 ## 这个仓库记什么
 
 - 在 [Issues](https://github.com/pingrunhuang/XHS-french-tool/issues) 里记录缺陷
 - 用功能完整性检查清单核对每个页面和关键操作
 - 优先看按钮点了没反应、点错、或被遮罩挡住的问题
 
-源码和打包产物（dist）之后可以补进本仓库。
+源码、打包输入和 v1.0.1 送审包已在本仓库，见「源码结构」。
 
 ## 怎么提 Bug
 

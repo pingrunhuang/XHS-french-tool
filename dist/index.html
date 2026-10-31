@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>法语每日5词</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      background: #F7F1E8;
+      color: #2C2A26;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .app {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      height: 100%;
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .header {
+      padding: 14px 16px 8px;
+      padding-top: calc(14px + env(safe-area-inset-top, 0px));
+      background: #F7F1E8;
+      -webkit-flex-shrink: 0;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1F6F6A;
+      letter-spacing: 0.02em;
+    }
+    .header .sub {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #8A7F72;
+    }
+    .tabs {
+      display: -webkit-flex;
+      display: flex;
+      padding: 8px 12px 0;
+      -webkit-flex-shrink: 0;
+      flex-shrink: 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .tab {
+      -webkit-flex: 1 0 auto;
+      flex: 1 0 auto;
+      min-width: 64px;
+      border: none;
+      background: transparent;
+      padding: 10px 8px;
+      font-size: 13px;
+      color: #8A7F72;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+    .tab.is-active {
+      color: #1F6F6A;
+      font-weight: 600;
+      border-bottom-color: #E07A3D;
+    }
+    .main {
+      -webkit-flex: 1 1 auto;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 12px 16px 24px;
+      padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    }
+    .panel { display: none; }
+    .panel.is-active { display: block; }
+    .card {
+      background: #FFFCF7;
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: 0 2px 10px rgba(44, 42, 38, 0.06);
+      border: 1px solid #EDE4D6;
+    }
+    .card + .card { margin-top: 12px; }
+    .pill-row {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
+      margin: -4px;
+    }
+    .pill {
+      display: inline-block;
+      margin: 4px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      background: #E6F3F1;
+      color: #1F6F6A;
+    }
+    .pill.orange { background: #FCE8DB; color: #C45A1A; }
+    .pill.muted { background: #F0EAE0; color: #6B6258; }
+    .word-fr {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1F6F6A;
+      line-height: 1.2;
+      margin-top: 8px;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .word-zh { margin-top: 6px; font-size: 16px; color: #4A433C; }
+    .word-ipa {
+      margin-top: 4px;
+      font-size: 14px;
+      color: #8A7F72;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .actions {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+    .actions > * { margin: 0 8px 8px 0; }
+    .btn {
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #1F6F6A;
+      color: #fff;
+    }
+    .btn:active { opacity: 0.88; }
+    .btn.secondary {
+      background: #FFFCF7;
+      color: #1F6F6A;
+      border: 1px solid #B7D9D5;
+    }
+    .btn.orange { background: #E07A3D; color: #fff; }
+    .btn.ghost {
+      background: transparent;
+      color: #1F6F6A;
+      border: 1px dashed #B7D9D5;
+    }
+    .btn.react {
+      background: #FFFCF7;
+      color: #6B6258;
+      border: 1px solid #E0D5C5;
+      min-width: 72px;
+    }
+    .btn.react.is-on {
+      background: #FCE8DB;
+      color: #C45A1A;
+      border-color: #E07A3D;
+    }
+    .btn.react.fav.is-on {
+      background: #E6F3F1;
+      color: #1F6F6A;
+      border-color: #1F6F6A;
+    }
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+    .btn-block { width: 100%; margin-right: 0; }
+    .btn-sm {
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .nav-row {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .nav-row .meta { font-size: 13px; color: #8A7F72; }
+    .example {
+      margin-top: 12px;
+      padding: 12px;
+      background: #F7F1E8;
+      border-radius: 12px;
+    }
+    .example + .example { margin-top: 8px; }
+    .example .fr {
+      font-size: 15px;
+      color: #2C2A26;
+      line-height: 1.45;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .example .zh { margin-top: 4px; font-size: 13px; color: #6B6258; }
+    .example .tip {
+      margin-top: 6px;
+      font-size: 12px;
+      color: #C45A1A;
+    }
+    .example .ex-actions { margin-top: 8px; }
+    .search-box {
+      width: 100%;
+      border: 1px solid #E0D5C5;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 15px;
+      background: #FFFCF7;
+      color: #2C2A26;
+      outline: none;
+      margin-bottom: 12px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .search-box:focus { border-color: #1F6F6A; }
+    .gender-item {
+      padding: 14px;
+      background: #FFFCF7;
+      border-radius: 14px;
+      border: 1px solid #EDE4D6;
+      margin-bottom: 10px;
+    }
+    .gender-item .head {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: baseline;
+      align-items: baseline;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
+    }
+    .gender-item .article {
+      font-weight: 700;
+      color: #E07A3D;
+      font-size: 18px;
+      margin-right: 6px;
+    }
+    .gender-item .w {
+      font-weight: 700;
+      font-size: 18px;
+      color: #1F6F6A;
+      margin-right: 8px;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .gender-item .zh { font-size: 14px; color: #6B6258; }
+    .gender-item .tip {
+      margin-top: 8px;
+      font-size: 13px;
+      color: #4A433C;
+      line-height: 1.4;
+    }
+    .empty {
+      text-align: center;
+      padding: 28px 12px;
+      color: #8A7F72;
+      font-size: 14px;
+    }
+    .quiz-prompt {
+      font-size: 18px;
+      line-height: 1.5;
+      color: #2C2A26;
+      -webkit-user-select: text;
+      user-select: text;
+    }
+    .quiz-zh { margin-top: 8px; font-size: 14px; color: #6B6258; }
+    .quiz-input {
+      width: 100%;
+      margin-top: 14px;
+      border: 1px solid #E0D5C5;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 16px;
+      background: #fff;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .quiz-input:focus { border-color: #1F6F6A; }
+    .feedback {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.45;
+      display: none;
+    }
+    .feedback.is-show { display: block; }
+    .feedback.ok { background: #E6F3F1; color: #1F6F6A; }
+    .feedback.bad { background: #FCE8DB; color: #C45A1A; }
+    .score-bar {
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: #8A7F72;
+    }
+    .tts-note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: #8A7F72;
+      line-height: 1.4;
+    }
+    .tts-note.warn { color: #C45A1A; }
+    .list-btn {
+      display: block;
+      width: 100%;
+      text-align: left;
+      border: 1px solid #EDE4D6;
+      background: #FFFCF7;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #2C2A26;
+    }
+    .list-btn.is-active {
+      border-color: #1F6F6A;
+      background: #E6F3F1;
+    }
+    .list-btn .lb-title {
+      font-weight: 700;
+      color: #1F6F6A;
+      font-size: 15px;
+    }
+    .list-btn .lb-meta {
+      margin-top: 4px;
+      font-size: 12px;
+      color: #8A7F72;
+    }
+    .list-btn .lb-preview {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #4A433C;
+      line-height: 1.4;
+    }
+    .hint {
+      font-size: 12px;
+      color: #8A7F72;
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .passage-fr {
+      font-size: 16px;
+      line-height: 1.65;
+      color: #2C2A26;
+      -webkit-user-select: text;
+      user-select: text;
+      white-space: pre-wrap;
+    }
+    .passage-fr .sent.is-playing {
+      background: #FCE8DB;
+      border-radius: 4px;
+    }
+    .passage-zh {
+      margin-top: 12px;
+      padding: 12px;
+      background: #F7F1E8;
+      border-radius: 12px;
+      font-size: 14px;
+      color: #4A433C;
+      line-height: 1.5;
+    }
+    .opt-row {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-wrap: wrap;
+      flex-wrap: wrap;
+      margin: 10px -4px 0;
+    }
+    .opt-row .btn { margin: 4px; }
+    .opt-label {
+      width: 100%;
+      font-size: 12px;
+      color: #8A7F72;
+      margin: 8px 4px 0;
+    }
+    .seg {
+      display: -webkit-inline-flex;
+      display: inline-flex;
+      border: 1px solid #B7D9D5;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 4px;
+    }
+    .seg button {
+      border: none;
+      background: #FFFCF7;
+      color: #1F6F6A;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .seg button + button { border-left: 1px solid #B7D9D5; }
+    .seg button.is-on {
+      background: #1F6F6A;
+      color: #fff;
+    }
+    .fav-section-title {
+      margin: 16px 0 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #1F6F6A;
+    }
+    .fav-section-title:first-child { margin-top: 0; }
+    .back-link {
+      border: none;
+      background: transparent;
+      color: #1F6F6A;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>法语每日 5 词</h1>
+      <div class="sub" id="headerSub">A1–A2 · 闪卡 · 名著朗读</div>
+    </header>
+    <nav class="tabs" id="tabs" role="tablist">
+      <button type="button" class="tab is-active" data-tab="flash" role="tab">每日闪卡</button>
+      <button type="button" class="tab" data-tab="gender" role="tab">性别速查</button>
+      <button type="button" class="tab" data-tab="quiz" role="tab">造句填空</button>
+      <button type="button" class="tab" data-tab="read" role="tab">名著朗读</button>
+      <button type="button" class="tab" data-tab="fav" role="tab">收藏</button>
+    </nav>
+    <main class="main">
+      <section class="panel is-active" id="panel-flash" role="tabpanel">
+        <div class="nav-row">
+          <div class="meta" id="flashMeta">今日词卡</div>
+          <div class="meta" id="flashIndex">1 / 5</div>
+        </div>
+        <div class="card" id="flashCard"></div>
+        <div class="actions" style="margin-top:12px;">
+          <button type="button" class="btn secondary" id="btnPrev">上一词</button>
+          <button type="button" class="btn" id="btnNext" style="-webkit-flex:1;flex:1;margin-right:0;">下一词</button>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-gender" role="tabpanel">
+        <p class="hint">输入法语词或中文释义，查看 le / la / l' 与记忆提示。</p>
+        <input class="search-box" id="genderSearch" type="search" placeholder="搜索：chat / 猫 / maison…" autocomplete="off" />
+        <div id="genderList"></div>
+      </section>
+
+      <section class="panel" id="panel-quiz" role="tabpanel">
+        <div class="score-bar" id="quizScore">得分 0 · 第 1 题</div>
+        <div class="card">
+          <div class="quiz-prompt" id="quizPrompt"></div>
+          <div class="quiz-zh" id="quizZh"></div>
+          <input class="quiz-input" id="quizInput" type="text" placeholder="填入空缺部分（法语）" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
+          <div class="actions" style="margin-top:12px;">
+            <button type="button" class="btn secondary" id="btnQuizSkip">跳过</button>
+            <button type="button" class="btn orange" id="btnQuizCheck" style="-webkit-flex:1;flex:1;margin-right:0;">检查</button>
+          </div>
+          <div class="feedback" id="quizFeedback"></div>
+          <div class="actions" style="margin-top:10px;">
+            <button type="button" class="btn ghost btn-block" id="btnQuizSpeak">朗读整句</button>
+          </div>
+        </div>
+        <div class="actions" style="margin-top:12px;">
+          <button type="button" class="btn secondary btn-block" id="btnQuizNext">下一题</button>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-read" role="tabpanel">
+        <div id="readListView">
+          <p class="hint">古典法语名著短文 · 整段 / 按句朗读 · 点赞收藏仅保存在本机小工具内。</p>
+          <div id="passageList"></div>
+        </div>
+        <div id="readDetailView" style="display:none;">
+          <button type="button" class="back-link" id="btnReadBack">← 返回篇目</button>
+          <div class="card" id="passageCard"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-fav" role="tabpanel">
+        <p class="hint">本地收藏的单词与名著短文（点赞不在此列表，仅收藏）。</p>
+        <div id="favContent"></div>
+      </section>
+    </main>
+  </div>
+  <script src="./words.js"></script>
+  <script src="./passages.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
