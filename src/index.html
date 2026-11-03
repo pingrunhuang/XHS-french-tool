@@ -54,23 +54,26 @@
     .tabs {
       display: -webkit-flex;
       display: flex;
-      padding: 8px 12px 0;
+      padding: 8px 6px 0;
       -webkit-flex-shrink: 0;
       flex-shrink: 0;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
+      /* Avoid horizontal scroll stealing taps on narrow Android WebViews */
+      overflow-x: hidden;
     }
     .tab {
-      -webkit-flex: 1 0 auto;
-      flex: 1 0 auto;
-      min-width: 64px;
+      -webkit-flex: 1 1 0;
+      flex: 1 1 0;
+      min-width: 0;
       border: none;
       background: transparent;
-      padding: 10px 8px;
-      font-size: 13px;
+      padding: 10px 2px;
+      font-size: 12px;
       color: #8A7F72;
       border-bottom: 2px solid transparent;
       cursor: pointer;
+      touch-action: manipulation;
+      position: relative;
+      z-index: 2;
     }
     .tab.is-active {
       color: #1F6F6A;
@@ -140,6 +143,9 @@
     }
     .actions > * { margin: 0 8px 8px 0; }
     .btn {
+      touch-action: manipulation;
+      position: relative;
+      z-index: 1;
       border: none;
       border-radius: 12px;
       padding: 10px 14px;
@@ -465,7 +471,7 @@
       pointer-events: none;
       z-index: 100;
     }
-    .toast.is-show { opacity: 1; visibility: visible; }
+    .toast.is-show { opacity: 1; visibility: visible; pointer-events: none; }
     .app-version {
       margin-top: 18px;
       text-align: center;
@@ -558,11 +564,12 @@
       <section class="panel" id="panel-fav" role="tabpanel">
         <p class="hint">本地收藏的单词与名著短文（点赞不在此列表，仅收藏）。</p>
         <div id="favContent"></div>
-        <div class="app-version" id="appVersion">v1.0.4</div>
+        <div class="app-version" id="appVersion">v1.0.5</div>
       </section>
     </main>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="./shell.js"></script>
   <script src="./words.js"></script>
   <script src="./passages.js"></script>
   <script src="./app.js"></script>
