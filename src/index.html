@@ -472,6 +472,22 @@
       z-index: 100;
     }
     .toast.is-show { opacity: 1; visibility: visible; pointer-events: none; }
+
+    .boot-banner {
+      display: block;
+      margin: 8px 16px 0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: #FFF4E5;
+      border: 1px solid #F0D2A8;
+      color: #8A5A1A;
+      font-size: 12px;
+      line-height: 1.4;
+      -webkit-flex-shrink: 0;
+      flex-shrink: 0;
+    }
+    .boot-banner.is-hide { display: none !important; }
+
     .app-version {
       margin-top: 18px;
       text-align: center;
@@ -502,13 +518,13 @@
   <div class="app">
     <header class="header">
       <h1>法语每日 5 词</h1>
-      <div class="sub" id="headerSub">CLB1–5 · 闪卡 · 名著朗读</div>
+      <div class="sub" id="headerSub">CLB1–5 · 闪卡 · 名著短文</div>
     </header>
     <nav class="tabs" id="tabs" role="tablist">
       <button type="button" class="tab is-active" data-tab="flash" role="tab">每日闪卡</button>
       <button type="button" class="tab" data-tab="gender" role="tab">性别速查</button>
       <button type="button" class="tab" data-tab="quiz" role="tab">造句填空</button>
-      <button type="button" class="tab" data-tab="read" role="tab">名著朗读</button>
+      <button type="button" class="tab" data-tab="read" role="tab">名著短文</button>
       <button type="button" class="tab" data-tab="fav" role="tab">收藏</button>
     </nav>
     <main class="main">
@@ -517,7 +533,7 @@
           <div class="meta" id="flashMeta">今日词卡</div>
           <div class="meta" id="flashIndex">1 / 5</div>
         </div>
-        <div class="card" id="flashCard"></div>
+        <div class="card" id="flashCard"><div class="empty">词库加载中…</div></div>
         <div class="actions" style="margin-top:12px;">
           <button type="button" class="btn secondary" id="btnPrev">上一词</button>
           <button type="button" class="btn" id="btnNext" style="-webkit-flex:1;flex:1;margin-right:0;">下一词</button>
@@ -542,7 +558,7 @@
           </div>
           <div class="feedback" id="quizFeedback"></div>
           <div class="actions" style="margin-top:10px;">
-            <button type="button" class="btn ghost btn-block" id="btnQuizSpeak">朗读整句</button>
+            <button type="button" class="btn ghost btn-block" id="btnQuizSpeak" hidden style="display:none;">朗读整句</button>
           </div>
         </div>
         <div class="actions" style="margin-top:12px;">
@@ -552,7 +568,7 @@
 
       <section class="panel" id="panel-read" role="tabpanel">
         <div id="readListView">
-          <p class="hint" id="readHint">古典法语名著短文 · 整段朗读可暂停 / 继续 · 点赞收藏仅保存在本机。</p>
+          <p class="hint" id="readHint">古典法语名著短文 · 法中对照 · 点赞收藏仅保存在本机。</p>
           <div id="passageList"></div>
         </div>
         <div id="readDetailView" style="display:none;">
@@ -564,12 +580,11 @@
       <section class="panel" id="panel-fav" role="tabpanel">
         <p class="hint">本地收藏的单词与名著短文（点赞不在此列表，仅收藏）。</p>
         <div id="favContent"></div>
-        <div class="app-version" id="appVersion">v1.0.5</div>
+        <div class="app-version" id="appVersion">v1.0.8</div>
       </section>
     </main>
   </div>
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
-  <script src="./shell.js"></script>
   <script src="./words.js"></script>
   <script src="./passages.js"></script>
   <script src="./app.js"></script>
